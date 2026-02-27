@@ -165,9 +165,12 @@
       <div class="card border-0 shadow-sm h-100">
         <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
           <h5 class="mb-0 fw-semibold">
-            <i class="ti ti-packages me-2 text-primary"></i>Bolsas activas
+            <i class="ti ti-package me-2 text-primary"></i>Bolsas activas
+            <span class="badge bg-primary ms-1">{activeBundles.length}</span>
           </h5>
-          <span class="badge bg-primary rounded-pill">{activeBundles.length}</span>
+          <a href="/client-bundles/export" class="btn btn-sm btn-light-info">
+            <i class="ti ti-file-export me-1"></i>Exportar
+          </a>
         </div>
         <div class="card-body p-0">
           {#if activeBundles.length > 0}

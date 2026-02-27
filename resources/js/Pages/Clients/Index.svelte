@@ -1,23 +1,24 @@
 <script>
-  import { router, Link } from '@inertiajs/svelte';
+  import { router, Link, useForm } from '@inertiajs/svelte';
   import AppLayout from '../../Layouts/AppLayout.svelte';
   import Pagination from '../../Components/Pagination.svelte';
   import ConfirmDelete from '../../Components/ConfirmDelete.svelte';
 
   let { clients, filters } = $props();
 
-  let search    = $state(filters.search ?? '');
-  let type      = $state(filters.type ?? '');
-  let isActive  = $state(filters.is_active ?? '');
+  let search   = $state(filters.search ?? '');
+  let type     = $state(filters.type ?? '');
+  let isActive = $state(filters.is_active ?? '');
+
+  // Import modal
+  let importOpen   = $state(false);
+  let importForm   = useForm({ file: null });
 
   let debounce;
   function applyFilters() {
     clearTimeout(debounce);
     debounce = setTimeout(() => {
-      router.get('/clients', { search, type, is_active: isActive }, {
-        preserveState: true,
-        replace: true,
-      });
+      router.get('/clients', { search, type, is_active: isActive }, { preserveState: true, replace: true });
     }, 300);
   }
 
@@ -25,17 +26,20 @@
     search = ''; type = ''; isActive = '';
     router.get('/clients');
   }
+
+  function submitImport() {
+    importForm.post('/clients/import', {
+      onSuccess: () => { importOpen = false; importForm.reset(); },
+    });
+  }
 </script>
 
 <AppLayout>
-  <!-- Breadcrumb -->
   <div class="page-header">
     <div class="page-block">
       <div class="row align-items-center">
-        <div class="col-md-12">
-          <div class="page-header-title">
-            <h5 class="m-0">Clientes</h5>
-          </div>
+        <div class="col">
+          <h5 class="m-0">Clientes</h5>
           <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Clientes</li>
@@ -45,28 +49,35 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <h5 class="mb-0">
-        <i class="ti ti-users me-2"></i>Listado de Clientes
-        <span class="badge bg-primary ms-2">{clients.total}</span>
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h5 class="mb-0 fw-semibold">
+        <i class="ti ti-users me-2 text-primary"></i>Clientes
+        <span class="badge bg-primary ms-1">{clients.total}</span>
       </h5>
-      <Link href="/clients/create" class="btn btn-primary btn-sm">
-        <i class="ti ti-plus me-1"></i>Nuevo cliente
-      </Link>
+      <div class="d-flex gap-2 flex-wrap">
+        <!-- Importar -->
+        <button type="button" class="btn btn-sm btn-light-success" onclick={() => importOpen = true}>
+          <i class="ti ti-file-import me-1"></i>Importar
+        </button>
+        <!-- Exportar -->
+        <a href="/clients/export" class="btn btn-sm btn-light-info">
+          <i class="ti ti-file-export me-1"></i>Exportar Excel
+        </a>
+        <!-- Nuevo -->
+        <Link href="/clients/create" class="btn btn-sm btn-primary">
+          <i class="ti ti-user-plus me-1"></i>Nuevo cliente
+        </Link>
+      </div>
     </div>
 
     <!-- Filtros -->
     <div class="card-body border-bottom pb-3">
-      <div class="row g-2">
+      <div class="row g-2 align-items-end">
         <div class="col-md-5">
-          <input
-            type="search"
-            class="form-control form-control-sm"
+          <input type="search" class="form-control form-control-sm"
             placeholder="Buscar por nombre, NIT o nombre comercial..."
-            bind:value={search}
-            oninput={applyFilters}
-          />
+            bind:value={search} oninput={applyFilters} />
         </div>
         <div class="col-md-3">
           <select class="form-select form-select-sm" bind:value={type} onchange={applyFilters}>
@@ -84,7 +95,7 @@
         </div>
         <div class="col-md-2">
           <button class="btn btn-sm btn-light w-100" onclick={resetFilters}>
-            <i class="ti ti-x me-1"></i>Limpiar
+            <i class="ti ti-refresh me-1"></i>Limpiar
           </button>
         </div>
       </div>
@@ -93,38 +104,40 @@
     <!-- Tabla -->
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
             <tr>
-              <th>Razón social / Nombre</th>
+              <th class="ps-3">Razón social / Nombre</th>
               <th>Documento</th>
               <th>Tipo</th>
               <th>Ciudad</th>
               <th>Email</th>
               <th>Estado</th>
-              <th class="text-end">Acciones</th>
+              <th class="text-end pe-3">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {#each clients.data as client}
               <tr>
-                <td>
+                <td class="ps-3">
                   <div class="fw-medium">{client.business_name}</div>
                   {#if client.trade_name}
                     <small class="text-muted">{client.trade_name}</small>
                   {/if}
                 </td>
-                <td>
-                  <code>{client.document_number}{client.dv ? '-' + client.dv : ''}</code>
-                </td>
+                <td><code class="text-muted">{client.document_number}{client.dv ? '-' + client.dv : ''}</code></td>
                 <td>
                   {#if client.type === 'juridica'}
-                    <span class="badge bg-light-primary text-primary">Jurídica</span>
+                    <span class="badge bg-light-primary text-primary">
+                      <i class="ti ti-building me-1"></i>Jurídica
+                    </span>
                   {:else}
-                    <span class="badge bg-light-secondary text-secondary">Natural</span>
+                    <span class="badge bg-light-secondary text-secondary">
+                      <i class="ti ti-user me-1"></i>Natural
+                    </span>
                   {/if}
                 </td>
-                <td>{client.city ?? '—'}</td>
+                <td><small class="text-muted">{client.city ?? '—'}</small></td>
                 <td>
                   {#if client.email}
                     <small>{client.email}</small>
@@ -134,17 +147,17 @@
                 </td>
                 <td>
                   {#if client.is_active}
-                    <span class="badge bg-light-success text-success">Activo</span>
+                    <span class="badge bg-light-success text-success"><i class="ti ti-check me-1"></i>Activo</span>
                   {:else}
-                    <span class="badge bg-light-danger text-danger">Inactivo</span>
+                    <span class="badge bg-light-danger text-danger"><i class="ti ti-x me-1"></i>Inactivo</span>
                   {/if}
                 </td>
-                <td class="text-end">
+                <td class="text-end pe-3">
                   <div class="d-flex gap-1 justify-content-end">
-                    <Link href="/clients/{client.id}" class="btn btn-sm btn-light-info" title="Ver detalle">
+                    <Link href="/clients/{client.id}" class="btn btn-icon btn-sm btn-light-info" title="Ver detalle">
                       <i class="ti ti-eye"></i>
                     </Link>
-                    <Link href="/clients/{client.id}/edit" class="btn btn-sm btn-light-primary" title="Editar">
+                    <Link href="/clients/{client.id}/edit" class="btn btn-icon btn-sm btn-light-primary" title="Editar">
                       <i class="ti ti-pencil"></i>
                     </Link>
                     <ConfirmDelete
@@ -157,9 +170,14 @@
               </tr>
             {:else}
               <tr>
-                <td colspan="7" class="text-center text-muted py-4">
-                  <i class="ti ti-users-off fs-3 d-block mb-2"></i>
+                <td colspan="7" class="text-center text-muted py-5">
+                  <i class="ti ti-users-off d-block mb-2" style="font-size:2.5rem; opacity:.3;"></i>
                   No se encontraron clientes.
+                  <div class="mt-3">
+                    <Link href="/clients/create" class="btn btn-sm btn-primary">
+                      <i class="ti ti-user-plus me-1"></i>Crear primer cliente
+                    </Link>
+                  </div>
                 </td>
               </tr>
             {/each}
@@ -169,14 +187,69 @@
     </div>
 
     {#if clients.links?.length > 3}
-      <div class="card-footer">
-        <div class="d-flex justify-content-between align-items-center">
-          <small class="text-muted">
-            Mostrando {clients.from ?? 0}–{clients.to ?? 0} de {clients.total} clientes
-          </small>
-          <Pagination links={clients.links} />
-        </div>
+      <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          Mostrando {clients.from ?? 0}–{clients.to ?? 0} de {clients.total} clientes
+        </small>
+        <Pagination links={clients.links} />
       </div>
     {/if}
   </div>
 </AppLayout>
+
+<!-- Modal importar clientes -->
+{#if importOpen}
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.4);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-semibold">
+            <i class="ti ti-file-import me-2 text-success"></i>Importar Clientes
+          </h5>
+          <button type="button" class="btn-close" onclick={() => importOpen = false}></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-info d-flex align-items-start gap-2 py-2 mb-3">
+            <i class="ti ti-info-circle mt-1 flex-shrink-0"></i>
+            <div>
+              <strong>Formato requerido:</strong> archivo CSV o Excel (.xlsx).
+              <a href="/clients/template" class="alert-link ms-1">
+                <i class="ti ti-download me-1"></i>Descargar template
+              </a>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-medium">Archivo</label>
+            <input type="file" class="form-control" accept=".csv,.xlsx,.xls"
+              onchange={(e) => importForm.file = e.target.files[0]} />
+            {#if importForm.errors.file}
+              <div class="text-danger small mt-1">{importForm.errors.file}</div>
+            {/if}
+          </div>
+
+          <div class="bg-light rounded p-3" style="font-size:0.8rem;">
+            <p class="fw-medium mb-1">Columnas requeridas en el archivo:</p>
+            <code class="text-muted" style="font-size:0.75rem;">
+              tipo, razon_social_nombre, documento
+            </code>
+            <p class="mb-0 mt-2 text-muted">Los clientes con documento ya existente serán omitidos (no duplicados).</p>
+          </div>
+        </div>
+        <div class="modal-footer border-top">
+          <button type="button" class="btn btn-light" onclick={() => importOpen = false}>
+            <i class="ti ti-x me-1"></i>Cancelar
+          </button>
+          <button type="button" class="btn btn-success" onclick={submitImport}
+            disabled={importForm.processing || !importForm.file}>
+            {#if importForm.processing}
+              <span class="spinner-border spinner-border-sm me-1"></span>Importando...
+            {:else}
+              <i class="ti ti-upload me-1"></i>Importar
+            {/if}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}

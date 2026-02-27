@@ -12,3 +12,157 @@
     background-image: radial-gradient(ellipse at 20% 50%, rgba(99, 153, 255, 0.08) 0%, transparent 60%),
                       radial-gradient(ellipse at 80% 20%, rgba(99, 200, 170, 0.08) 0%, transparent 60%);
 }
+
+/* ── Fix footer del sidebar ─────────────────────────────────────────────────
+   Mantis define .pc-sidebar .navbar-content { height: calc(100vh - 60px) }
+   lo que ocupa TODO el espacio disponible, empujando nuestro footer fuera
+   del viewport (invisible bajo overflow:hidden del sidebar).
+   Solución: convertir navbar-wrapper en flex-column, navbar-content en flex:1
+   ─────────────────────────────────────────────────────────────────────────── */
+.pc-sidebar .navbar-wrapper {
+    display: flex !important;
+    flex-direction: column;
+    height: 100%;
+}
+.pc-sidebar .navbar-content {
+    flex: 1 1 0 !important;
+    height: auto !important;   /* anula calc(100vh - 60px) de Mantis */
+    overflow-y: auto;
+}
+
+/* ── Sidebar: logo mini oculto por defecto ─────────── */
+.sidebar-logo-mini { display: none !important; }
+
+/* ── Sidebar mini (icon-only) — solo desktop ─────────── */
+@media (min-width: 1025px) {
+    .pc-sidebar.pc-sidebar-mini {
+        width: 70px;
+        overflow: visible !important;  /* permite que el tooltip sobresalga */
+    }
+    .pc-sidebar.pc-sidebar-mini ~ .pc-header {
+        left: 70px;
+    }
+    .pc-sidebar.pc-sidebar-mini ~ .pc-container,
+    .pc-sidebar.pc-sidebar-mini ~ .pc-footer {
+        margin-left: 70px;
+    }
+    .pc-sidebar.pc-sidebar-mini .navbar-wrapper {
+        width: 70px;
+        /* sin overflow:hidden para no cortar el tooltip */
+    }
+
+    /* Ocultar textos y captions */
+    .pc-sidebar.pc-sidebar-mini .pc-mtext          { display: none !important; }
+    .pc-sidebar.pc-sidebar-mini .pc-caption        { display: none !important; }
+    .pc-sidebar.pc-sidebar-mini .sidebar-user-text { display: none !important; }
+
+    /* Logo: cambiar full → mini */
+    .pc-sidebar.pc-sidebar-mini .sidebar-logo-full { display: none !important; }
+    .pc-sidebar.pc-sidebar-mini .sidebar-logo-mini { display: block !important; }
+    .pc-sidebar.pc-sidebar-mini .m-header          { justify-content: center; }
+
+    /* Centrar iconos:
+       Mantis define .pc-link como display:block, hay que cambiarlo a flex */
+    .pc-sidebar.pc-sidebar-mini .pc-link {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0 !important;
+    }
+    .pc-sidebar.pc-sidebar-mini .pc-micon {
+        margin-right: 0 !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Centrar footer (avatar + logout) */
+    .pc-sidebar.pc-sidebar-mini .sidebar-footer-info { justify-content: center; }
+
+    /* Tooltip con position:fixed para escapar cualquier overflow */
+    .pc-sidebar.pc-sidebar-mini .pc-item .pc-link {
+        position: relative;
+    }
+    .pc-sidebar.pc-sidebar-mini .pc-item .pc-link::after {
+        content: attr(data-label);
+        position: fixed;
+        left: 82px;         /* 70px ancho sidebar + 12px gap */
+        top: auto;
+        margin-top: -10px;  /* ajuste vertical aproximado */
+        background: rgba(25, 28, 36, 0.93);
+        color: #fff;
+        padding: 5px 12px;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.12s ease;
+        font-size: 0.78rem;
+        font-weight: 500;
+        z-index: 9999;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+        letter-spacing: 0.01em;
+    }
+    .pc-sidebar.pc-sidebar-mini .pc-item .pc-link:hover::after {
+        opacity: 1;
+    }
+}
+
+/* ── Modal de búsqueda global ───────────────────────── */
+.search-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 18, 25, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: 1060;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 80px;
+}
+.search-modal-box {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    width: 100%;
+    max-width: 580px;
+    overflow: hidden;
+}
+.search-modal-input {
+    border: none;
+    font-size: 1.05rem;
+    padding: 16px 20px;
+    width: 100%;
+    outline: none;
+}
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.1s;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+}
+.search-result-item:hover,
+.search-result-item:focus {
+    background: #f0f4ff;
+    color: inherit;
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-no-results {
+    padding: 28px 20px;
+    text-align: center;
+    color: #999;
+    font-size: 0.9rem;
+}

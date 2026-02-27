@@ -7,7 +7,9 @@ use App\Http\Controllers\ClientBundleController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientPriceController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImportExportController;
 use App\Http\Controllers\PriceListController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServiceTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +27,18 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Búsqueda global (JSON)
+    Route::get('/search', SearchController::class)->name('search');
+
+    // Import / Export
+    Route::get('/clients/export',          [ImportExportController::class, 'exportClients'])->name('clients.export');
+    Route::post('/clients/import',         [ImportExportController::class, 'importClients'])->name('clients.import');
+    Route::get('/clients/template',        [ImportExportController::class, 'templateClients'])->name('clients.template');
+    Route::get('/client-prices/export',    [ImportExportController::class, 'exportClientPrices'])->name('client-prices.export');
+    Route::post('/client-prices/import',   [ImportExportController::class, 'importClientPrices'])->name('client-prices.import');
+    Route::get('/client-prices/template',  [ImportExportController::class, 'templateClientPrices'])->name('client-prices.template');
+    Route::get('/client-bundles/export',   [ImportExportController::class, 'exportClientBundles'])->name('client-bundles.export');
 
     // Clientes
     Route::resource('clients', ClientController::class);

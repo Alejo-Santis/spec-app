@@ -1,6 +1,7 @@
 <script>
   import { page, Link } from '@inertiajs/svelte';
   import FlashNotification from '../Components/FlashNotification.svelte';
+  import SearchModal from '../Components/SearchModal.svelte';
   import { onMount } from 'svelte';
 
   let { children } = $props();
@@ -10,22 +11,16 @@
   const currentUrl      = $derived($page.url);
 
   // Sidebar state
-  let sidebarHidden  = $state(false);
-  let mobileOpen     = $state(false);
-  let searchQuery    = $state('');
-  let dropdownOpen   = $state(false);
-  let searchInputEl;
+  let sidebarHidden = $state(false);
+  let mobileOpen    = $state(false);
+  let dropdownOpen  = $state(false);
+  let searchOpen    = $state(false);
 
-  function toggleSidebar()   { sidebarHidden = !sidebarHidden; }
-  function toggleMobileSidebar() { mobileOpen = !mobileOpen; }
-  function closeMobile()     { mobileOpen = false; }
-  function toggleDropdown(e) { e.stopPropagation(); dropdownOpen = !dropdownOpen; }
-
-  function handleSearch(e) {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      window.location.href = '/clients?search=' + encodeURIComponent(searchQuery.trim());
-    }
-  }
+  function toggleSidebar()       { sidebarHidden = !sidebarHidden; }
+  function toggleMobileSidebar() { mobileOpen    = !mobileOpen;    }
+  function closeMobile()         { mobileOpen    = false;          }
+  function toggleDropdown(e)     { e.stopPropagation(); dropdownOpen = !dropdownOpen; }
+  function openSearch()          { searchOpen    = true;           }
 
   const navGroups = [
     {
@@ -59,12 +54,11 @@
   onMount(() => {
     if (typeof feather !== 'undefined') feather.replace();
 
-    // Ctrl+K / Cmd+K → enfocar buscador
+    // Ctrl+K / Cmd+K → abrir modal de búsqueda
     function handleKeydown(e) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        searchInputEl?.focus();
-        searchInputEl?.select();
+        searchOpen = true;
       }
     }
 
@@ -82,6 +76,9 @@
     };
   });
 </script>
+
+<!-- Modal de búsqueda global -->
+<SearchModal bind:open={searchOpen} />
 
 <!-- Pre-loader -->
 <div class="loader-bg">
@@ -154,7 +151,7 @@
 <header class="pc-header">
   <div class="header-wrapper">
 
-    <!-- Hamburger -->
+    <!-- Izquierda: hamburger + search trigger -->
     <div class="me-auto pc-mob-drp d-flex align-items-center gap-2">
       <!-- Desktop: modo mini -->
       <button type="button" class="btn btn-icon btn-light-secondary d-none d-lg-flex"
@@ -167,27 +164,24 @@
         <i class="ti ti-menu-2 f-18"></i>
       </button>
 
-      <!-- Buscador rápido -->
-      <div class="d-none d-md-flex align-items-center">
-        <div class="input-group input-group-sm" style="width:260px;">
-          <span class="input-group-text bg-transparent border-end-0">
-            <i class="ti ti-search text-muted"></i>
-          </span>
-          <input
-            type="text"
-            class="form-control border-start-0 ps-0"
-            placeholder="Buscar cliente... (Ctrl+K)"
-            bind:value={searchQuery}
-            bind:this={searchInputEl}
-            onkeydown={handleSearch}
-            style="box-shadow:none;"
-          >
-        </div>
-      </div>
+      <!-- Botón de búsqueda (abre modal) -->
+      <button type="button" class="d-none d-md-flex align-items-center gap-2 btn btn-light border"
+        onclick={openSearch}
+        style="width:240px; justify-content:flex-start; color:#aaa; font-size:0.875rem; border-radius:8px; padding:6px 12px;">
+        <i class="ti ti-search" style="font-size:0.95rem;"></i>
+        <span class="flex-grow-1 text-start">Buscar...</span>
+        <kbd style="font-size:0.65rem; background:#f3f4f6; border:1px solid #ddd; border-radius:4px; padding:1px 5px; color:#888;">Ctrl K</kbd>
+      </button>
     </div>
 
     <!-- Derecha del header -->
     <div class="ms-auto d-flex align-items-center gap-2">
+
+      <!-- Búsqueda móvil -->
+      <button type="button" class="btn btn-icon btn-light-secondary d-flex d-md-none"
+        onclick={openSearch} title="Buscar">
+        <i class="ti ti-search f-18"></i>
+      </button>
 
       <!-- Lista activa badge -->
       {#if activePriceList}
@@ -268,5 +262,5 @@
   </div>
 </footer>
 
-<!-- SweetAlert2 flash notifications -->
+<!-- Flash notifications -->
 <FlashNotification />

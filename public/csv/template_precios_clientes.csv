@@ -1,0 +1,3 @@
+documento_cliente,tipo_de_servicio,lista_de_precios,anios_vigencia,precio_base,ajuste_porcentaje,precio_negociado,descuento_porcentaje,aplica_iva,iva_porcentaje,valido_desde,valido_hasta,notas
+900123456,Certificado 1 año,Lista de Precios 2026,1,146000,9,,,Si,19,2026-01-01,,Precio estándar
+900123456,Habilitación,Lista de Precios 2026,,85000,9,,,No,0,2026-01-01,,
