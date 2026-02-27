@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#40a9ff"/>
+      <stop offset="100%" stop-color="#096dd9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo cuadrado redondeado -->
+  <rect x="0" y="0" width="64" height="64" rx="14" ry="14" fill="url(#grad)"/>
+
+  <!-- Acento superior: línea de precio ascendente (chart) -->
+  <polyline
+    points="10,38 22,26 34,32 54,16"
+    fill="none"
+    stroke="rgba(255,255,255,0.35)"
+    stroke-width="3.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Letra S en blanco, grande y centrada -->
+  <text
+    x="32"
+    y="52"
+    text-anchor="middle"
+    font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="34"
+    font-weight="800"
+    fill="white"
+  >S</text>
+</svg>

@@ -1,0 +1,14 @@
+/* Mantis ya incluye Bootstrap 5 via /mantis/css/style.css
+   Aquí van estilos propios del proyecto SPEC */
+
+.price-cop {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+/* Auth layout limpio */
+.spec-auth-bg {
+    background-color: #eef2f7;
+    background-image: radial-gradient(ellipse at 20% 50%, rgba(99, 153, 255, 0.08) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, rgba(99, 200, 170, 0.08) 0%, transparent 60%);
+}
