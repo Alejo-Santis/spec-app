@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\ClientPrice;
 use App\Models\PriceList;
 use App\Models\ServiceType;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,6 +16,8 @@ use Inertia\Response;
 class ClientPriceController extends Controller
 {
     use WithFlashMessage;
+
+    public function __construct(private ActivityLogService $activity) {}
 
     public function index(Request $request): Response
     {
@@ -61,7 +64,7 @@ class ClientPriceController extends Controller
     {
         return Inertia::render('ClientPrices/Create', [
             'clients'          => Client::where('is_active', true)->orderBy('business_name')->get(['id', 'business_name', 'document_number']),
-            'priceLists'       => PriceList::orderByDesc('year')->get(['id', 'year', 'name']),
+            'priceLists'       => PriceList::orderByDesc('year')->get(['id', 'year', 'name', 'is_active', 'adjustment_percentage']),
             'serviceTypes'     => ServiceType::where('is_active', true)->where('billing_type', 'unit')->get(),
             'selectedClientId' => $request->client_id,
         ]);
@@ -85,7 +88,18 @@ class ClientPriceController extends Controller
             'notes'                 => ['nullable', 'string'],
         ]);
 
-        ClientPrice::create($data);
+        $price  = ClientPrice::create($data);
+        $client = Client::find($data['client_id']);
+        $svc    = ServiceType::find($data['service_type_id']);
+
+        $this->activity->log(
+            action: 'created',
+            module: 'ClientPrice',
+            description: "Precio asignado a {$client->business_name}: {$svc->name} → $ " . number_format($price->final_price, 0, ',', '.'),
+            subjectId: $price->id,
+            subjectLabel: "{$client->business_name} / {$svc->name}",
+            properties: ['final_price' => $price->final_price, 'client_id' => $client->id],
+        );
 
         return redirect()->route('clients.show', $data['client_id'])
             ->with(...$this->success('Precio creado correctamente.'));
@@ -115,7 +129,18 @@ class ClientPriceController extends Controller
             'notes'                 => ['nullable', 'string'],
         ]);
 
+        $oldPrice = $clientPrice->final_price;
         $clientPrice->update($data);
+        $clientPrice->load(['client', 'serviceType']);
+
+        $this->activity->log(
+            action: 'updated',
+            module: 'ClientPrice',
+            description: "Precio actualizado: {$clientPrice->client->business_name} / {$clientPrice->serviceType->name}",
+            subjectId: $clientPrice->id,
+            subjectLabel: "{$clientPrice->client->business_name} / {$clientPrice->serviceType->name}",
+            properties: ['precio_anterior' => $oldPrice, 'precio_nuevo' => $clientPrice->fresh()->final_price],
+        );
 
         return redirect()->route('clients.show', $clientPrice->client_id)
             ->with(...$this->success('Precio actualizado correctamente.'));
@@ -124,7 +149,18 @@ class ClientPriceController extends Controller
     public function destroy(ClientPrice $clientPrice): RedirectResponse
     {
         $clientId = $clientPrice->client_id;
+        $clientPrice->load(['client', 'serviceType']);
+        $label = "{$clientPrice->client->business_name} / {$clientPrice->serviceType->name}";
+
         $clientPrice->delete();
+
+        $this->activity->log(
+            action: 'deleted',
+            module: 'ClientPrice',
+            description: "Precio eliminado: {$label}",
+            subjectId: $clientId,
+            subjectLabel: $label,
+        );
 
         return redirect()->route('clients.show', $clientId)
             ->with(...$this->success('Precio eliminado correctamente.'));

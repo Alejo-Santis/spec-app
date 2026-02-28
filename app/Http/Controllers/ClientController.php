@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Concerns\WithFlashMessage;
 use App\Models\Client;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,6 +13,9 @@ use Inertia\Response;
 class ClientController extends Controller
 {
     use WithFlashMessage;
+
+    public function __construct(private ActivityLogService $activity) {}
+
     public function index(Request $request): Response
     {
         $clients = Client::query()
@@ -60,7 +64,15 @@ class ClientController extends Controller
             'notes'               => ['nullable', 'string'],
         ]);
 
-        Client::create($data);
+        $client = Client::create($data);
+
+        $this->activity->log(
+            action: 'created',
+            module: 'Client',
+            description: "Cliente creado: {$client->business_name}",
+            subjectId: $client->id,
+            subjectLabel: $client->business_name,
+        );
 
         return redirect()->route('clients.index')
             ->with(...$this->success('Cliente creado correctamente.'));
@@ -112,7 +124,21 @@ class ClientController extends Controller
             'notes'               => ['nullable', 'string'],
         ]);
 
+        $changed = array_keys(array_diff_assoc(
+            collect($data)->except(['tax_responsibilities'])->toArray(),
+            $client->only(array_keys(collect($data)->except(['tax_responsibilities'])->toArray()))
+        ));
+
         $client->update($data);
+
+        $this->activity->log(
+            action: 'updated',
+            module: 'Client',
+            description: "Cliente actualizado: {$client->business_name}",
+            subjectId: $client->id,
+            subjectLabel: $client->business_name,
+            properties: ['campos_modificados' => $changed],
+        );
 
         return redirect()->route('clients.show', $client)
             ->with(...$this->success('Cliente actualizado correctamente.'));
@@ -120,7 +146,18 @@ class ClientController extends Controller
 
     public function destroy(Client $client): RedirectResponse
     {
+        $name = $client->business_name;
+        $id   = $client->id;
+
         $client->delete();
+
+        $this->activity->log(
+            action: 'deleted',
+            module: 'Client',
+            description: "Cliente eliminado: {$name}",
+            subjectId: $id,
+            subjectLabel: $name,
+        );
 
         return redirect()->route('clients.index')
             ->with(...$this->success('Cliente eliminado correctamente.'));

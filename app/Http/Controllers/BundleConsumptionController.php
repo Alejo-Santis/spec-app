@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Concerns\WithFlashMessage;
 use App\Models\ClientBundle;
+use App\Services\ActivityLogService;
 use App\Services\BundleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,10 @@ class BundleConsumptionController extends Controller
 {
     use WithFlashMessage;
 
-    public function __construct(private BundleService $bundleService) {}
+    public function __construct(
+        private BundleService $bundleService,
+        private ActivityLogService $activity,
+    ) {}
 
     public function index(ClientBundle $clientBundle): Response
     {
@@ -43,6 +47,20 @@ class BundleConsumptionController extends Controller
         } catch (\RuntimeException $e) {
             return back()->with(...$this->error($e->getMessage()));
         }
+
+        $clientBundle->load(['client', 'bundleTier']);
+        $this->activity->log(
+            action: 'consumed',
+            module: 'ClientBundle',
+            description: "Consumo de {$data['quantity']} unid. en bolsa de {$clientBundle->client->business_name} ({$clientBundle->bundleTier->name})",
+            subjectId: $clientBundle->id,
+            subjectLabel: "{$clientBundle->client->business_name} / {$clientBundle->bundleTier->name}",
+            properties: [
+                'quantity'  => $data['quantity'],
+                'reference' => $data['reference'] ?? null,
+                'remaining' => $clientBundle->quantity_purchased - $clientBundle->quantity_consumed,
+            ],
+        );
 
         return redirect()->route('client-bundles.show', $clientBundle)
             ->with(...$this->success("Consumo de {$data['quantity']} unidades registrado correctamente."));

@@ -1,8 +1,5 @@
 <script>
-  import { usePage } from '@inertiajs/svelte';
-  import { onMount } from 'svelte';
-
-  const page = usePage();
+  import { page } from '@inertiajs/svelte';
 
   $effect(() => {
     const flash = $page.props.flash;

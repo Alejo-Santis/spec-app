@@ -41,7 +41,13 @@
     {
       caption: 'Bolsas',
       items: [
-        { label: 'Bolsas / Paquetes', href: '/client-bundles/create', icon: 'ti ti-package', exact: false },
+        { label: 'Bolsas / Paquetes', href: '/client-bundles', icon: 'ti ti-package', exact: false },
+      ],
+    },
+    {
+      caption: 'Sistema',
+      items: [
+        { label: 'Log de actividades', href: '/activity-logs', icon: 'ti ti-timeline', exact: false },
       ],
     },
   ];

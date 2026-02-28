@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BundleConsumptionController;
 use App\Http\Controllers\BundleTierController;
@@ -27,6 +28,9 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Log de actividades
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
     // Búsqueda global (JSON)
     Route::get('/search', SearchController::class)->name('search');
@@ -78,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('client-prices/{clientPrice}', [ClientPriceController::class, 'destroy'])->name('client-prices.destroy');
 
     // Bolsas
+    Route::get('client-bundles', [ClientBundleController::class, 'index'])->name('client-bundles.index');
     Route::get('client-bundles/create', [ClientBundleController::class, 'create'])->name('client-bundles.create');
     Route::post('client-bundles', [ClientBundleController::class, 'store'])->name('client-bundles.store');
     Route::get('client-bundles/{clientBundle}', [ClientBundleController::class, 'show'])->name('client-bundles.show');

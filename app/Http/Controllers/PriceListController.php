@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Concerns\WithFlashMessage;
 use App\Models\PriceList;
 use App\Models\ServiceType;
+use App\Services\ActivityLogService;
 use App\Services\PriceListGeneratorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,9 @@ use Inertia\Response;
 class PriceListController extends Controller
 {
     use WithFlashMessage;
+
+    public function __construct(private ActivityLogService $activity) {}
+
     public function index(): Response
     {
         $priceLists = PriceList::withCount('clientPrices')
@@ -44,6 +48,15 @@ class PriceListController extends Controller
         ]);
 
         $priceList = PriceList::create($data);
+
+        $this->activity->log(
+            action: 'created',
+            module: 'PriceList',
+            description: "Lista de precios creada: {$priceList->name}",
+            subjectId: $priceList->id,
+            subjectLabel: $priceList->name,
+            properties: ['year' => $priceList->year, 'adjustment_percentage' => $priceList->adjustment_percentage],
+        );
 
         return redirect()->route('price-lists.show', $priceList)
             ->with(...$this->success('Lista de precios creada correctamente.'));
@@ -83,6 +96,15 @@ class PriceListController extends Controller
 
         $generator->generateFromPrevious($priceList, $previousList);
 
+        $this->activity->log(
+            action: 'created',
+            module: 'PriceList',
+            description: "Precios generados en {$priceList->name} desde {$previousList->name}",
+            subjectId: $priceList->id,
+            subjectLabel: $priceList->name,
+            properties: ['desde' => $previousList->name],
+        );
+
         return redirect()->route('price-lists.show', $priceList)
             ->with(...$this->success('Precios generados desde la lista anterior correctamente.'));
     }
@@ -91,6 +113,14 @@ class PriceListController extends Controller
     {
         PriceList::where('is_active', true)->update(['is_active' => false]);
         $priceList->update(['is_active' => true]);
+
+        $this->activity->log(
+            action: 'activated',
+            module: 'PriceList',
+            description: "Lista activada: {$priceList->name}",
+            subjectId: $priceList->id,
+            subjectLabel: $priceList->name,
+        );
 
         return redirect()->route('price-lists.show', $priceList)
             ->with(...$this->success("Lista {$priceList->name} activada correctamente."));

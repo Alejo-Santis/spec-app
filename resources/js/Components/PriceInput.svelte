@@ -21,7 +21,8 @@
   }
 
   function parseRaw(str) {
-    return parseFloat(str.replace(/[^0-9.]/g, '')) || 0;
+    // Solo dígitos — en COP no usamos decimales en el display
+    return parseInt(str.replace(/[^0-9]/g, ''), 10) || 0;
   }
 
   $effect(() => {
@@ -29,9 +30,9 @@
   });
 
   function handleInput(e) {
-    const raw = parseRaw(e.target.value);
-    value = raw;
-    display = formatCop(raw);
+    const stripped = e.target.value.replace(/[^0-9]/g, '');
+    value = parseInt(stripped, 10) || 0;
+    display = stripped; // Sin formatear mientras se escribe
   }
 
   function handleBlur(e) {
@@ -39,7 +40,7 @@
   }
 
   function handleFocus(e) {
-    display = value ? String(value) : '';
+    display = value ? String(Math.round(value)) : '';
   }
 </script>
 

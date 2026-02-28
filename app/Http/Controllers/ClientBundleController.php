@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\ClientBundle;
 use App\Models\PriceList;
 use App\Models\ServiceType;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,12 +18,32 @@ class ClientBundleController extends Controller
 {
     use WithFlashMessage;
 
+    public function __construct(private ActivityLogService $activity) {}
+
+    public function index(Request $request): Response
+    {
+        $bundles = ClientBundle::with(['client', 'bundleTier.serviceType', 'priceList'])
+            ->when($request->client_search, fn ($q, $s) => $q->whereHas('client',
+                fn ($cq) => $cq->where('business_name', 'ilike', "%{$s}%")
+            ))
+            ->when($request->filled('is_active'), fn ($q) => $q->where('is_active', $request->boolean('is_active')))
+            ->when($request->price_list_id, fn ($q, $id) => $q->where('price_list_id', $id))
+            ->orderByDesc('purchased_at')
+            ->paginate(30)
+            ->withQueryString();
+
+        return Inertia::render('ClientBundles/Index', [
+            'bundles'    => $bundles,
+            'priceLists' => PriceList::orderByDesc('year')->get(['id', 'year', 'name', 'is_active']),
+            'filters'    => $request->only(['client_search', 'is_active', 'price_list_id']),
+        ]);
+    }
+
     public function clientBundles(Client $client): Response
     {
         $client->load([
             'bundles.bundleTier.serviceType',
             'bundles.priceList',
-            'bundles.consumptions.creator',
         ]);
 
         return Inertia::render('ClientBundles/ClientBundles', [
@@ -59,9 +80,19 @@ class ClientBundleController extends Controller
             'notes'              => ['nullable', 'string'],
         ]);
 
-        ClientBundle::create($data);
+        $bundle = ClientBundle::create($data);
+        $bundle->load(['client', 'bundleTier.serviceType']);
 
-        return redirect()->route('clients.bundles', $data['client_id'])
+        $this->activity->log(
+            action: 'created',
+            module: 'ClientBundle',
+            description: "Bolsa creada para {$bundle->client->business_name}: {$bundle->bundleTier->serviceType->name} x {$bundle->quantity_purchased} unid.",
+            subjectId: $bundle->id,
+            subjectLabel: "{$bundle->client->business_name} / {$bundle->bundleTier->name}",
+            properties: ['quantity_purchased' => $bundle->quantity_purchased, 'price_paid' => $bundle->price_paid],
+        );
+
+        return redirect()->route('client-bundles.show', $bundle)
             ->with(...$this->success('Bolsa creada correctamente.'));
     }
 
