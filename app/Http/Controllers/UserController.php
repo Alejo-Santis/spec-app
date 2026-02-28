@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Concerns\WithFlashMessage;
 use App\Models\User;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,8 @@ use Spatie\Permission\Models\Role;
 class UserController extends Controller
 {
     use WithFlashMessage;
+
+    public function __construct(private readonly ActivityLogService $log) {}
 
     public function index(): Response
     {
@@ -56,6 +59,11 @@ class UserController extends Controller
 
         $user->assignRole($data['role']);
 
+        $this->log->log('created', 'users', "Usuario '{$user->name}' creado con rol '{$data['role']}'.", $user->id, $user->name, [
+            'email' => $user->email,
+            'role'  => $data['role'],
+        ]);
+
         return back()->with(...$this->success("Usuario {$user->name} creado exitosamente."));
     }
 
@@ -69,7 +77,13 @@ class UserController extends Controller
             return back()->with(...$this->error('No puedes cambiar tu propio rol de administrador.'));
         }
 
+        $oldRole = $user->getRoleNames()->first() ?? '—';
         $user->syncRoles([$request->role]);
+
+        $this->log->log('updated', 'users', "Rol de '{$user->name}' cambiado de '{$oldRole}' a '{$request->role}'.", $user->id, $user->name, [
+            'old_role' => $oldRole,
+            'new_role' => $request->role,
+        ]);
 
         return back()->with(...$this->success("Rol de {$user->name} actualizado a '{$request->role}'."));
     }
@@ -84,6 +98,8 @@ class UserController extends Controller
 
         $estado = $user->is_active ? 'activado' : 'desactivado';
 
+        $this->log->log('updated', 'users', "Usuario '{$user->name}' {$estado}.", $user->id, $user->name);
+
         return back()->with(...$this->success("Usuario {$user->name} {$estado}."));
     }
 
@@ -93,8 +109,13 @@ class UserController extends Controller
             return back()->with(...$this->error('No puedes eliminar tu propia cuenta.'));
         }
 
-        $name = $user->name;
+        $name  = $user->name;
+        $email = $user->email;
+        $userId = $user->id;
+
         $user->delete();
+
+        $this->log->log('deleted', 'users', "Usuario '{$name}' eliminado.", $userId, $name, ['email' => $email]);
 
         return back()->with(...$this->success("Usuario {$name} eliminado."));
     }

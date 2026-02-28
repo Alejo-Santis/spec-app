@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Concerns\WithFlashMessage;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,8 @@ use Inertia\Response;
 class ProfileController extends Controller
 {
     use WithFlashMessage;
+
+    public function __construct(private readonly ActivityLogService $log) {}
 
     public function edit(): Response
     {
@@ -35,6 +38,8 @@ class ProfileController extends Controller
 
         auth()->user()->update($data);
 
+        $this->log->log('updated', 'profile', 'Perfil actualizado (nombre/email).', auth()->id(), auth()->user()->name);
+
         return back()->with(...$this->success('Perfil actualizado correctamente.'));
     }
 
@@ -52,6 +57,8 @@ class ProfileController extends Controller
         auth()->user()->update([
             'password' => Hash::make($request->password),
         ]);
+
+        $this->log->log('updated', 'profile', 'Contraseña cambiada.', auth()->id(), auth()->user()->name);
 
         return back()->with(...$this->success('Contraseña actualizada correctamente.'));
     }

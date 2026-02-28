@@ -1,3 +1,3 @@
-tipo,razon_social_nombre,nombre_comercial,documento,dv,regimen,email,email_facturacion,telefono,celular,direccion,ciudad,departamento,pais,cod_postal,notas
-juridica,Empresa Ejemplo S.A.S.,Ejemplo Comercial,900123456,7,ordinario,contacto@empresa.com,facturas@empresa.com,6011234567,3001234567,Calle 100 # 10-20,Bogotá,Cundinamarca,CO,110111,Cliente de ejemplo
-natural,Juan Pérez García,,1098765432,,ordinario,juan.perez@gmail.com,,,,"Carrera 5 # 10-15",Medellín,Antioquia,CO,,
+tipo,razon_social_nombre,documento,dv,nombre_comercial,regimen,email,email_facturacion,telefono,movil,direccion,ciudad,departamento,notas
+juridica,Empresa Ejemplo S.A.S,900123456,7,Ejemplo Corp,ordinario,contacto@ejemplo.com,facturacion@ejemplo.com,6011234567,3001234567,Calle 123 # 45-67,Bogotá,Cundinamarca,Cliente prioritario
+natural,Juan Pérez García,1234567890,,,,juan@email.com,,3109876543,,Carrera 10 # 20-30,Medellín,Antioquia,

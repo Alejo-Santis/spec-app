@@ -1,3 +1,4 @@
-documento_cliente,tipo_de_servicio,lista_de_precios,anios_vigencia,precio_base,ajuste_porcentaje,precio_negociado,descuento_porcentaje,aplica_iva,iva_porcentaje,valido_desde,valido_hasta,notas
-900123456,Certificado 1 año,Lista de Precios 2026,1,146000,9,,,Si,19,2026-01-01,,Precio estándar
-900123456,Habilitación,Lista de Precios 2026,,85000,9,,,No,0,2026-01-01,,
+documento_cliente,nombre_servicio,precio_final,aplica_iva,porcentaje_iva,vigencia_desde,vigencia_hasta,duracion_anos,notas
+900123456,Certificado 1 año,146000,1,19,2026-01-01,,1,Precio negociado
+900123456,Habilitación,95000,0,0,2026-01-01,,,
+1234567890,Certificado 2 años,270000,1,19,2026-01-01,,2,

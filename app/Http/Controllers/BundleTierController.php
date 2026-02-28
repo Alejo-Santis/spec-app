@@ -6,6 +6,7 @@ use App\Http\Concerns\WithFlashMessage;
 use App\Models\BundleTier;
 use App\Models\PriceList;
 use App\Models\ServiceType;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,6 +15,8 @@ use Inertia\Response;
 class BundleTierController extends Controller
 {
     use WithFlashMessage;
+
+    public function __construct(private readonly ActivityLogService $log) {}
 
     public function create(PriceList $priceList): Response
     {
@@ -35,7 +38,13 @@ class BundleTierController extends Controller
             'is_active'       => ['boolean'],
         ]);
 
-        $priceList->bundleTiers()->create($data);
+        $tier = $priceList->bundleTiers()->create($data);
+
+        $this->log->log('created', 'bundle-tiers', "Tier '{$tier->name}' creado en lista '{$priceList->name}'.", $tier->id, $tier->name, [
+            'price_list' => $priceList->name,
+            'quantity'   => $tier->quantity,
+            'price'      => $tier->price,
+        ]);
 
         return redirect()->route('price-lists.show', $priceList)
             ->with(...$this->success('Tier de bolsa creado correctamente.'));
@@ -62,6 +71,8 @@ class BundleTierController extends Controller
 
         $bundleTier->update($data);
 
+        $this->log->log('updated', 'bundle-tiers', "Tier '{$bundleTier->name}' actualizado.", $bundleTier->id, $bundleTier->name);
+
         return redirect()->route('price-lists.show', $bundleTier->price_list_id)
             ->with(...$this->success('Tier de bolsa actualizado correctamente.'));
     }
@@ -69,6 +80,10 @@ class BundleTierController extends Controller
     public function destroy(BundleTier $bundleTier): RedirectResponse
     {
         $priceListId = $bundleTier->price_list_id;
+        $name        = $bundleTier->name;
+
+        $this->log->log('deleted', 'bundle-tiers', "Tier '{$name}' eliminado.", $bundleTier->id, $name);
+
         $bundleTier->delete();
 
         return redirect()->route('price-lists.show', $priceListId)

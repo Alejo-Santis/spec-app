@@ -41,7 +41,7 @@
   </div>
 
   <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" id="tour-pl-header">
       <h5 class="mb-0"><i class="ti ti-list me-2"></i>Listas de Precios</h5>
       {#if perms.has('price-lists.create')}
         <Link href="/price-lists/create" class="btn btn-primary btn-sm">
@@ -50,7 +50,7 @@
       {/if}
     </div>
     <div class="card-body p-0">
-      <div class="table-responsive">
+      <div class="table-responsive" id="tour-pl-table">
         <table class="table table-hover mb-0">
           <thead>
             <tr>

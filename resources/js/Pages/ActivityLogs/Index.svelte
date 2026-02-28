@@ -24,16 +24,24 @@
     exported:  'secondary',
   };
   const moduleLabels = {
-    Client:      'Cliente',
-    PriceList:   'Lista de precios',
-    ClientPrice: 'Precio cliente',
-    ClientBundle:'Bolsa',
+    Client:          'Cliente',
+    PriceList:       'Lista de precios',
+    ClientPrice:     'Precio cliente',
+    ClientBundle:    'Bolsa',
+    'service-types': 'Tipos de servicio',
+    'bundle-tiers':  'Bundle tiers',
+    users:           'Usuarios',
+    profile:         'Perfil',
   };
   const moduleIcons = {
-    Client:      'ti-users',
-    PriceList:   'ti-list',
-    ClientPrice: 'ti-currency-dollar',
-    ClientBundle:'ti-package',
+    Client:          'ti-users',
+    PriceList:       'ti-list',
+    ClientPrice:     'ti-currency-dollar',
+    ClientBundle:    'ti-package',
+    'service-types': 'ti-briefcase',
+    'bundle-tiers':  'ti-layers-intersect',
+    users:           'ti-users-group',
+    profile:         'ti-user-circle',
   };
 
   // Filtros locales

@@ -68,7 +68,7 @@
   </div>
 
   <!-- Filtros -->
-  <div class="card mb-3">
+  <div class="card mb-3" id="tour-bundles-filters">
     <div class="card-body py-2">
       <div class="row g-2 align-items-end">
         <div class="col-md-4">
@@ -108,7 +108,7 @@
   </div>
 
   <!-- Tabla -->
-  <div class="card">
+  <div class="card" id="tour-bundles-table">
     <div class="card-header d-flex align-items-center justify-content-between">
       <h5 class="mb-0"><i class="ti ti-package me-2"></i>Bolsas</h5>
       <div class="d-flex gap-2 align-items-center">

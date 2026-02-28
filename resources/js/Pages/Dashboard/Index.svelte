@@ -84,7 +84,7 @@
   </div>
 
   <!-- KPIs -->
-  <div class="row g-3 mb-3">
+  <div class="row g-3 mb-3" id="tour-kpis">
     <div class="col-sm-6 col-xl-3">
       <div class="card h-100 border-0 shadow-sm">
         <div class="card-body">
@@ -235,7 +235,7 @@
   <!-- Bolsas + Actividad reciente -->
   <div class="row g-3">
     <div class="col-lg-7">
-      <div class="card border-0 shadow-sm h-100">
+      <div class="card border-0 shadow-sm h-100" id="tour-active-bundles">
         <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
           <h5 class="mb-0 fw-semibold"><i class="ti ti-package me-2 text-primary"></i>Bolsas activas <span class="badge bg-primary ms-1">{activeBundles.length}</span></h5>
           <div class="d-flex gap-2">
@@ -296,7 +296,7 @@
 
     <div class="col-lg-5 d-flex flex-column gap-3">
       <!-- Acciones rápidas -->
-      <div class="card border-0 shadow-sm">
+      <div class="card border-0 shadow-sm" id="tour-quick-actions">
         <div class="card-header bg-transparent border-bottom">
           <h6 class="mb-0 fw-semibold"><i class="ti ti-bolt me-2 text-warning"></i>Acciones rápidas</h6>
         </div>
@@ -323,7 +323,7 @@
       </div>
 
       <!-- Actividad reciente -->
-      <div class="card border-0 shadow-sm flex-grow-1">
+      <div class="card border-0 shadow-sm flex-grow-1" id="tour-recent-activity">
         <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
           <h6 class="mb-0 fw-semibold"><i class="ti ti-timeline me-2 text-info"></i>Actividad reciente</h6>
           <Link href="/activity-logs" class="small text-info text-decoration-none">Ver todo <i class="ti ti-arrow-right ms-1"></i></Link>

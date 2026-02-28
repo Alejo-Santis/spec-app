@@ -30,8 +30,8 @@
   }
 
   function submitImport() {
-    importForm.post('/clients/import', {
-      onSuccess: () => { importOpen = false; importForm.reset(); },
+    $importForm.post('/clients/import', {
+      onSuccess: () => { importOpen = false; $importForm.reset(); },
     });
   }
 </script>
@@ -57,7 +57,7 @@
         <i class="ti ti-users me-2 text-primary"></i>Clientes
         <span class="badge bg-primary ms-1">{clients.total}</span>
       </h5>
-      <div class="d-flex gap-2 flex-wrap">
+      <div class="d-flex gap-2 flex-wrap" id="tour-client-actions">
         {#if perms.has('import-export.use')}
           <button type="button" class="btn btn-sm btn-light-success" onclick={() => importOpen = true}>
             <i class="ti ti-file-import me-1"></i>Importar
@@ -75,7 +75,7 @@
     </div>
 
     <!-- Filtros -->
-    <div class="card-body border-bottom pb-3">
+    <div class="card-body border-bottom pb-3" id="tour-client-filters">
       <div class="row g-2 align-items-end">
         <div class="col-md-5">
           <input type="search" class="form-control form-control-sm"
@@ -106,7 +106,7 @@
 
     <!-- Tabla -->
     <div class="card-body p-0">
-      <div class="table-responsive">
+      <div class="table-responsive" id="tour-client-table">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
@@ -216,27 +216,30 @@
           <button type="button" class="btn-close" onclick={() => importOpen = false}></button>
         </div>
         <div class="modal-body">
-          <div class="alert alert-info d-flex align-items-start gap-2 py-2 mb-3">
-            <i class="ti ti-info-circle mt-1 flex-shrink-0"></i>
-            <div>
-              <strong>Formato requerido:</strong> archivo CSV o Excel (.xlsx).
-              <a href="/clients/template" class="alert-link ms-1">
-                <i class="ti ti-download me-1"></i>Descargar template
-              </a>
+          <!-- Descarga del template -->
+          <div class="d-flex align-items-center gap-3 p-3 rounded mb-3"
+            style="background:#f0f7ff; border:1px solid #c8e0ff;">
+            <i class="ti ti-file-spreadsheet text-primary" style="font-size:2rem; flex-shrink:0;"></i>
+            <div class="flex-grow-1">
+              <div class="fw-semibold" style="font-size:0.875rem;">Template de importación</div>
+              <small class="text-muted">Descarga el archivo CSV con el formato correcto y las columnas requeridas.</small>
             </div>
+            <a href="/clients/template" class="btn btn-sm btn-primary flex-shrink-0" download>
+              <i class="ti ti-download me-1"></i>Descargar
+            </a>
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-medium">Archivo</label>
+            <label class="form-label fw-medium">Seleccionar archivo <span class="text-danger">*</span></label>
             <input type="file" class="form-control" accept=".csv,.xlsx,.xls"
-              onchange={(e) => importForm.file = e.target.files[0]} />
-            {#if importForm.errors.file}
-              <div class="text-danger small mt-1">{importForm.errors.file}</div>
+              onchange={(e) => $importForm.file = e.target.files[0]} />
+            {#if $importForm.errors.file}
+              <div class="text-danger small mt-1">{$importForm.errors.file}</div>
             {/if}
           </div>
 
           <div class="bg-light rounded p-3" style="font-size:0.8rem;">
-            <p class="fw-medium mb-1">Columnas requeridas en el archivo:</p>
+            <p class="fw-medium mb-1">Columnas requeridas:</p>
             <code class="text-muted" style="font-size:0.75rem;">
               tipo, razon_social_nombre, documento
             </code>
@@ -245,14 +248,14 @@
         </div>
         <div class="modal-footer border-top">
           <button type="button" class="btn btn-light" onclick={() => importOpen = false}>
-            <i class="ti ti-x me-1"></i>Cancelar
+            Cancelar
           </button>
           <button type="button" class="btn btn-success" onclick={submitImport}
-            disabled={importForm.processing || !importForm.file}>
-            {#if importForm.processing}
+            disabled={$importForm.processing || !$importForm.file}>
+            {#if $importForm.processing}
               <span class="spinner-border spinner-border-sm me-1"></span>Importando...
             {:else}
-              <i class="ti ti-upload me-1"></i>Importar
+              <i class="ti ti-upload me-1"></i>Importar clientes
             {/if}
           </button>
         </div>

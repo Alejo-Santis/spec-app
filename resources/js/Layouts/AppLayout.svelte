@@ -2,6 +2,7 @@
   import { page, Link } from '@inertiajs/svelte';
   import FlashNotification from '../Components/FlashNotification.svelte';
   import SearchModal from '../Components/SearchModal.svelte';
+  import TourGuide from '../Components/TourGuide.svelte';
   import { onMount } from 'svelte';
 
   let { children } = $props();
@@ -9,6 +10,9 @@
   const auth            = $derived($page.props.auth);
   const activePriceList = $derived($page.props.activePriceList);
   const currentUrl      = $derived($page.url);
+
+  // Tour
+  let startTour = $state(null);
 
   // Sidebar state
   let sidebarHidden = $state(false);
@@ -49,8 +53,8 @@
     {
       caption: 'Sistema',
       items: [
-        { label: 'Log de actividades', href: '/activity-logs', icon: 'ti ti-timeline', exact: false, perm: 'activity-logs.view' },
-        { label: 'Usuarios',           href: '/users',         icon: 'ti ti-users-group', exact: false, perm: 'users.manage' },
+        { label: 'Log de actividades', href: '/activity-logs', icon: 'ti ti-tool', exact: false, perm: 'activity-logs.view' },
+        { label: 'Usuarios',           href: '/users',         icon: 'ti ti-users', exact: false, perm: 'users.manage' },
       ],
     },
   ]);
@@ -89,6 +93,9 @@
 <!-- Modal de búsqueda global -->
 <SearchModal bind:open={searchOpen} />
 
+<!-- Tour guide (auto-start + bindable trigger) -->
+<TourGuide bind:startTour />
+
 <!-- Pre-loader -->
 <div class="loader-bg">
   <div class="loader-track">
@@ -118,7 +125,7 @@
 
     <!-- Nav items -->
     <div class="navbar-content">
-      <ul class="pc-navbar">
+      <ul class="pc-navbar" id="tour-nav">
         {#each navGroups as group}
           <li class="pc-item pc-caption">
             <label>{group.caption}</label>
@@ -174,7 +181,7 @@
       </button>
 
       <!-- Botón de búsqueda (abre modal) -->
-      <button type="button" class="d-none d-md-flex align-items-center gap-2 btn btn-light border"
+      <button type="button" id="tour-search" class="d-none d-md-flex align-items-center gap-2 btn btn-light border"
         onclick={openSearch}
         style="width:240px; justify-content:flex-start; color:#aaa; font-size:0.875rem; border-radius:8px; padding:6px 12px;">
         <i class="ti ti-search" style="font-size:0.95rem;"></i>
@@ -194,12 +201,23 @@
 
       <!-- Lista activa badge -->
       {#if activePriceList}
-        <Link href="/price-lists"
+        <Link href="/price-lists" id="tour-active-list"
           class="badge bg-light-primary rounded-pill text-primary text-decoration-none d-none d-lg-inline-flex align-items-center gap-1 px-3 py-2">
           <i class="ti ti-calendar-plus"></i>
           {activePriceList.name}
         </Link>
       {/if}
+
+      <!-- Botón de ayuda / tour -->
+      <button
+        id="tour-help"
+        type="button"
+        class="btn btn-icon btn-light-secondary d-none d-md-flex"
+        onclick={() => startTour?.()}
+        title="Ver tutorial de esta página"
+      >
+        <i class="ti ti-help f-18"></i>
+      </button>
 
       <!-- User dropdown (Svelte-managed) -->
       <div class="dropdown">
@@ -224,12 +242,17 @@
           <ul class="dropdown-menu dropdown-menu-end shadow border-0 show" style="min-width:220px;">
             <li>
               <div class="px-3 py-2 border-bottom">
-                <div class="fw-semibold" style="font-size:0.875rem;">{auth?.user?.name ?? ''}</div>
-                <small class="text-muted">{auth?.user?.email ?? ''}</small>
+                <div class="fw-semibold" style="font-size:0.875rem;">
+                    <i class="ti ti-user me-1 text-primary"></i>
+                {auth?.user?.name ?? ''}</div>
+                <small class="text-muted">
+                    <i class="ti ti-mail me-1 text-muted"></i>
+                    {auth?.user?.email ?? ''}
+                </small>
                 {#if auth?.user?.roles?.[0]}
                   <div class="mt-1">
                     <span class="badge bg-light-primary text-primary" style="font-size:0.65rem;">
-                      {auth.user.roles[0]}
+                        <i class="ti ti-shield-lock me-1"></i>{auth.user.roles[0]}
                     </span>
                   </div>
                 {/if}
@@ -238,7 +261,7 @@
             <li>
               <Link href="/profile"
                 class="dropdown-item d-flex align-items-center gap-2 py-2">
-                <i class="ti ti-user-circle"></i> Mi perfil
+                <i class="ti ti-user"></i> Mi perfil
               </Link>
             </li>
             <li><hr class="dropdown-divider my-1"></li>
