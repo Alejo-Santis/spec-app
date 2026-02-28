@@ -22,35 +22,38 @@
   function toggleDropdown(e)     { e.stopPropagation(); dropdownOpen = !dropdownOpen; }
   function openSearch()          { searchOpen    = true;           }
 
-  const navGroups = [
+  const userPerms = $derived(new Set($page.props.auth?.user?.permissions ?? []));
+
+  const navGroups = $derived([
     {
       caption: 'Principal',
       items: [
         { label: 'Dashboard',         href: '/',               icon: 'ti ti-dashboard',       exact: true  },
-        { label: 'Clientes',          href: '/clients',        icon: 'ti ti-users',           exact: false },
+        { label: 'Clientes',          href: '/clients',        icon: 'ti ti-users',           exact: false, perm: 'clients.view' },
       ],
     },
     {
       caption: 'Precios y Servicios',
       items: [
-        { label: 'Precios clientes',  href: '/client-prices',  icon: 'ti ti-currency-dollar', exact: false },
-        { label: 'Listas de precios', href: '/price-lists',    icon: 'ti ti-list-check',      exact: false },
-        { label: 'Tipos de servicio', href: '/service-types',  icon: 'ti ti-briefcase',       exact: false },
+        { label: 'Precios clientes',  href: '/client-prices',  icon: 'ti ti-currency-dollar', exact: false, perm: 'client-prices.view' },
+        { label: 'Listas de precios', href: '/price-lists',    icon: 'ti ti-list-check',      exact: false, perm: 'price-lists.view' },
+        { label: 'Tipos de servicio', href: '/service-types',  icon: 'ti ti-briefcase',       exact: false, perm: 'service-types.view' },
       ],
     },
     {
       caption: 'Bolsas',
       items: [
-        { label: 'Bolsas / Paquetes', href: '/client-bundles', icon: 'ti ti-package', exact: false },
+        { label: 'Bolsas / Paquetes', href: '/client-bundles', icon: 'ti ti-package', exact: false, perm: 'client-bundles.view' },
       ],
     },
     {
       caption: 'Sistema',
       items: [
-        { label: 'Log de actividades', href: '/activity-logs', icon: 'ti ti-timeline', exact: false },
+        { label: 'Log de actividades', href: '/activity-logs', icon: 'ti ti-timeline', exact: false, perm: 'activity-logs.view' },
+        { label: 'Usuarios',           href: '/users',         icon: 'ti ti-users-group', exact: false, perm: 'users.manage' },
       ],
     },
-  ];
+  ]);
 
   function isActive(href, exact) {
     if (exact) return currentUrl === href;
@@ -120,7 +123,7 @@
           <li class="pc-item pc-caption">
             <label>{group.caption}</label>
           </li>
-          {#each group.items as item}
+          {#each group.items.filter(i => !i.perm || userPerms.has(i.perm)) as item}
             <li class="pc-item {isActive(item.href, item.exact) ? 'active' : ''}">
               <Link href={item.href} class="pc-link" onclick={closeMobile} data-label={item.label}>
                 <span class="pc-micon"><i class={item.icon}></i></span>
@@ -192,8 +195,8 @@
       <!-- Lista activa badge -->
       {#if activePriceList}
         <Link href="/price-lists"
-          class="badge bg-light-primary text-primary text-decoration-none d-none d-lg-inline-flex align-items-center gap-1 px-3 py-2">
-          <i class="ti ti-calendar-check"></i>
+          class="badge bg-light-primary rounded-pill text-primary text-decoration-none d-none d-lg-inline-flex align-items-center gap-1 px-3 py-2">
+          <i class="ti ti-calendar-plus"></i>
           {activePriceList.name}
         </Link>
       {/if}
@@ -223,14 +226,28 @@
               <div class="px-3 py-2 border-bottom">
                 <div class="fw-semibold" style="font-size:0.875rem;">{auth?.user?.name ?? ''}</div>
                 <small class="text-muted">{auth?.user?.email ?? ''}</small>
+                {#if auth?.user?.roles?.[0]}
+                  <div class="mt-1">
+                    <span class="badge bg-light-primary text-primary" style="font-size:0.65rem;">
+                      {auth.user.roles[0]}
+                    </span>
+                  </div>
+                {/if}
               </div>
             </li>
+            <li>
+              <Link href="/profile"
+                class="dropdown-item d-flex align-items-center gap-2 py-2">
+                <i class="ti ti-user-circle"></i> Mi perfil
+              </Link>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
             <li>
               <Link
                 href="/logout"
                 method="post"
                 as="button"
-                class="dropdown-item d-flex align-items-center gap-2 text-danger py-2 mt-1"
+                class="dropdown-item d-flex align-items-center gap-2 text-danger py-2"
               >
                 <i class="ti ti-logout"></i> Cerrar sesión
               </Link>

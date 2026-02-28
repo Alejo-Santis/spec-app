@@ -85,6 +85,9 @@ class ClientController extends Controller
             'currentPrices.priceList',
             'activeBundles.bundleTier.serviceType',
             'activeBundles.priceList',
+            'prices.adjustments.creator',
+            'prices.serviceType',
+            'prices.priceList',
         ]);
 
         return Inertia::render('Clients/Show', [

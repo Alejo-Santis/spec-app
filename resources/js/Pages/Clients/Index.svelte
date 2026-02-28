@@ -1,8 +1,10 @@
 <script>
-  import { router, Link, useForm } from '@inertiajs/svelte';
+  import { router, Link, page, useForm } from '@inertiajs/svelte';
   import AppLayout from '../../Layouts/AppLayout.svelte';
   import Pagination from '../../Components/Pagination.svelte';
   import ConfirmDelete from '../../Components/ConfirmDelete.svelte';
+
+  const perms = $derived(new Set($page.props.auth?.user?.permissions ?? []));
 
   let { clients, filters } = $props();
 
@@ -56,18 +58,19 @@
         <span class="badge bg-primary ms-1">{clients.total}</span>
       </h5>
       <div class="d-flex gap-2 flex-wrap">
-        <!-- Importar -->
-        <button type="button" class="btn btn-sm btn-light-success" onclick={() => importOpen = true}>
-          <i class="ti ti-file-import me-1"></i>Importar
-        </button>
-        <!-- Exportar -->
-        <a href="/clients/export" class="btn btn-sm btn-light-info">
-          <i class="ti ti-file-export me-1"></i>Exportar Excel
-        </a>
-        <!-- Nuevo -->
-        <Link href="/clients/create" class="btn btn-sm btn-primary">
-          <i class="ti ti-user-plus me-1"></i>Nuevo cliente
-        </Link>
+        {#if perms.has('import-export.use')}
+          <button type="button" class="btn btn-sm btn-light-success" onclick={() => importOpen = true}>
+            <i class="ti ti-file-import me-1"></i>Importar
+          </button>
+          <a href="/clients/export" class="btn btn-sm btn-light-info">
+            <i class="ti ti-file-export me-1"></i>Exportar Excel
+          </a>
+        {/if}
+        {#if perms.has('clients.create')}
+          <Link href="/clients/create" class="btn btn-sm btn-primary">
+            <i class="ti ti-user-plus me-1"></i>Nuevo cliente
+          </Link>
+        {/if}
       </div>
     </div>
 
@@ -157,14 +160,18 @@
                     <Link href="/clients/{client.id}" class="btn btn-icon btn-sm btn-light-info" title="Ver detalle">
                       <i class="ti ti-eye"></i>
                     </Link>
-                    <Link href="/clients/{client.id}/edit" class="btn btn-icon btn-sm btn-light-primary" title="Editar">
-                      <i class="ti ti-pencil"></i>
-                    </Link>
-                    <ConfirmDelete
-                      action="/clients/{client.id}"
-                      title="¿Eliminar {client.business_name}?"
-                      text="Se eliminarán también sus precios asociados."
-                    />
+                    {#if perms.has('clients.update')}
+                      <Link href="/clients/{client.id}/edit" class="btn btn-icon btn-sm btn-light-primary" title="Editar">
+                        <i class="ti ti-pencil"></i>
+                      </Link>
+                    {/if}
+                    {#if perms.has('clients.delete')}
+                      <ConfirmDelete
+                        action="/clients/{client.id}"
+                        title="¿Eliminar {client.business_name}?"
+                        text="Se eliminarán también sus precios asociados."
+                      />
+                    {/if}
                   </div>
                 </td>
               </tr>

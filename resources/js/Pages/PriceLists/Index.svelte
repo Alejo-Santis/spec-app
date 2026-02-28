@@ -1,5 +1,7 @@
 <script>
-  import { useForm, Link } from '@inertiajs/svelte';
+  import { useForm, Link, page } from '@inertiajs/svelte';
+
+  const perms = $derived(new Set($page.props.auth?.user?.permissions ?? []));
   import AppLayout from '../../Layouts/AppLayout.svelte';
 
   let { priceLists } = $props();
@@ -41,9 +43,11 @@
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0"><i class="ti ti-list me-2"></i>Listas de Precios</h5>
-      <Link href="/price-lists/create" class="btn btn-primary btn-sm">
-        <i class="ti ti-plus me-1"></i>Nueva lista
-      </Link>
+      {#if perms.has('price-lists.create')}
+        <Link href="/price-lists/create" class="btn btn-primary btn-sm">
+          <i class="ti ti-plus me-1"></i>Nueva lista
+        </Link>
+      {/if}
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
@@ -86,7 +90,7 @@
                     <Link href="/price-lists/{pl.id}" class="btn btn-sm btn-light-info" title="Ver detalle">
                       <i class="ti ti-eye"></i>
                     </Link>
-                    {#if !pl.is_active}
+                    {#if !pl.is_active && perms.has('price-lists.activate')}
                       <button class="btn btn-sm btn-light-success" onclick={() => activateList(pl.id)} title="Activar">
                         <i class="ti ti-check"></i>
                       </button>

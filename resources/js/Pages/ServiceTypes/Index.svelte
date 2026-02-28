@@ -1,5 +1,7 @@
 <script>
-  import { useForm, router } from '@inertiajs/svelte';
+  import { useForm, router, page } from '@inertiajs/svelte';
+
+  const perms = $derived(new Set($page.props.auth?.user?.permissions ?? []));
   import AppLayout from '../../Layouts/AppLayout.svelte';
   import ConfirmDelete from '../../Components/ConfirmDelete.svelte';
 
@@ -79,9 +81,11 @@
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0"><i class="ti ti-settings me-2"></i>Tipos de Servicio</h5>
-      <button class="btn btn-primary btn-sm" onclick={openCreate}>
-        <i class="ti ti-plus me-1"></i>Nuevo tipo
-      </button>
+      {#if perms.has('service-types.manage')}
+        <button class="btn btn-primary btn-sm" onclick={openCreate}>
+          <i class="ti ti-plus me-1"></i>Nuevo tipo
+        </button>
+      {/if}
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
@@ -123,15 +127,17 @@
                   {/if}
                 </td>
                 <td class="text-end">
-                  <button class="btn btn-sm btn-light-primary" onclick={() => openEdit(st)}>
-                    <i class="ti ti-pencil"></i>
-                  </button>
-                  <ConfirmDelete
-                    action="/service-types/{st.id}"
-                    title="¿Desactivar {st.name}?"
-                    text="El tipo de servicio quedará inactivo."
-                    label="Desactivar"
-                  />
+                  {#if perms.has('service-types.manage')}
+                    <button class="btn btn-sm btn-light-primary" onclick={() => openEdit(st)}>
+                      <i class="ti ti-pencil"></i>
+                    </button>
+                    <ConfirmDelete
+                      action="/service-types/{st.id}"
+                      title="¿Desactivar {st.name}?"
+                      text="El tipo de servicio quedará inactivo."
+                      label="Desactivar"
+                    />
+                  {/if}
                 </td>
               </tr>
             {:else}

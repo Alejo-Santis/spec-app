@@ -1,7 +1,9 @@
 <script>
-  import { Link } from '@inertiajs/svelte';
+  import { Link, page } from '@inertiajs/svelte';
   import AppLayout from '../../Layouts/AppLayout.svelte';
   import ConfirmDelete from '../../Components/ConfirmDelete.svelte';
+
+  const perms = $derived(new Set($page.props.auth?.user?.permissions ?? []));
 
   let { client } = $props();
 
@@ -11,6 +13,37 @@
 
   const prices       = $derived(client.current_prices ?? []);
   const bundles      = $derived(client.active_bundles ?? []);
+
+  // Historial de ajustes: aplanar todos los adjustments de todos los precios
+  const priceHistory = $derived(() => {
+    const all = [];
+    for (const price of client.prices ?? []) {
+      for (const adj of price.adjustments ?? []) {
+        all.push({
+          ...adj,
+          service_name: price.service_type?.name,
+          list_name:    price.price_list?.name,
+        });
+      }
+    }
+    return all.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  });
+
+  const reasonLabels = {
+    annual_adjust: 'Ajuste anual',
+    negotiation:   'Negociación',
+    correction:    'Corrección',
+  };
+  const reasonColors = {
+    annual_adjust: 'info',
+    negotiation:   'warning',
+    correction:    'secondary',
+  };
+
+  function formatDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('es-CO');
+  }
 </script>
 
 <AppLayout>
@@ -28,15 +61,24 @@
           </ul>
         </div>
         <div class="col-auto d-flex gap-2">
-          <Link href="/clients/{client.id}/edit" class="btn btn-primary btn-sm">
-            <i class="ti ti-pencil me-1"></i>Editar
-          </Link>
-          <ConfirmDelete
-            action="/clients/{client.id}"
-            title="¿Eliminar {client.business_name}?"
-            text="Se eliminarán también sus precios asociados."
-            class="btn btn-sm btn-danger"
-          />
+          {#if perms.has('clients.view')}
+            <a href="/clients/{client.id}/quotation" target="_blank" class="btn btn-sm btn-light-info">
+              <i class="ti ti-file-type-pdf me-1"></i>Cotización PDF
+            </a>
+          {/if}
+          {#if perms.has('clients.update')}
+            <Link href="/clients/{client.id}/edit" class="btn btn-primary btn-sm">
+              <i class="ti ti-pencil me-1"></i>Editar
+            </Link>
+          {/if}
+          {#if perms.has('clients.delete')}
+            <ConfirmDelete
+              action="/clients/{client.id}"
+              title="¿Eliminar {client.business_name}?"
+              text="Se eliminarán también sus precios asociados."
+              class="btn btn-sm btn-danger"
+            />
+          {/if}
         </div>
       </div>
     </div>
@@ -146,9 +188,11 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="ti ti-currency-dollar me-2"></i>Precios vigentes</h5>
-          <Link href="/client-prices/create?client_id={client.id}" class="btn btn-sm btn-primary">
-            <i class="ti ti-plus me-1"></i>Agregar precio
-          </Link>
+          {#if perms.has('client-prices.create')}
+            <Link href="/client-prices/create?client_id={client.id}" class="btn btn-sm btn-primary">
+              <i class="ti ti-plus me-1"></i>Agregar precio
+            </Link>
+          {/if}
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -187,11 +231,15 @@
                         {price.valid_until ? '→ ' + new Date(price.valid_until).toLocaleDateString('es-CO') : ''}
                       </small>
                     </td>
-                    <td>
-                      <Link href="/client-prices/{price.id}/edit" class="btn btn-xs btn-light-primary">
-                        <i class="ti ti-pencil"></i>
-                      </Link>
-                    </td>
+                    {#if perms.has('client-prices.update')}
+                      <td>
+                        <Link href="/client-prices/{price.id}/edit" class="btn btn-xs btn-light-primary">
+                          <i class="ti ti-pencil"></i>
+                        </Link>
+                      </td>
+                    {:else}
+                      <td></td>
+                    {/if}
                   </tr>
                 {:else}
                   <tr>
@@ -210,9 +258,11 @@
       <div class="card mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="ti ti-packages me-2"></i>Bolsas activas</h5>
-          <Link href="/client-bundles/create?client_id={client.id}" class="btn btn-sm btn-primary">
-            <i class="ti ti-plus me-1"></i>Nueva bolsa
-          </Link>
+          {#if perms.has('client-bundles.create')}
+            <Link href="/client-bundles/create?client_id={client.id}" class="btn btn-sm btn-primary">
+              <i class="ti ti-plus me-1"></i>Nueva bolsa
+            </Link>
+          {/if}
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -275,6 +325,51 @@
           </div>
         </div>
       </div>
+
+      <!-- Historial de ajustes de precios -->
+      {#if priceHistory().length > 0}
+        <div class="card mt-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="ti ti-history me-2"></i>Historial de ajustes de precios</h5>
+            <span class="badge bg-light-secondary text-secondary">{priceHistory().length} cambios</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Servicio</th>
+                    <th>Motivo</th>
+                    <th class="text-end">Precio anterior</th>
+                    <th class="text-end">Precio nuevo</th>
+                    <th>Usuario</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {#each priceHistory() as adj}
+                    <tr>
+                      <td class="text-muted small">{formatDate(adj.created_at)}</td>
+                      <td>
+                        <small class="fw-medium">{adj.service_name}</small>
+                        {#if adj.list_name}<br><small class="text-muted">{adj.list_name}</small>{/if}
+                      </td>
+                      <td>
+                        <span class="badge bg-light-{reasonColors[adj.reason] ?? 'secondary'} text-{reasonColors[adj.reason] ?? 'secondary'}">
+                          {reasonLabels[adj.reason] ?? adj.reason}
+                        </span>
+                      </td>
+                      <td class="text-end text-muted small">{formatCop(adj.old_price)}</td>
+                      <td class="text-end fw-medium">{formatCop(adj.new_price)}</td>
+                      <td class="text-muted small">{adj.creator?.name ?? '—'}</td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {/if}
 
     </div>
   </div>

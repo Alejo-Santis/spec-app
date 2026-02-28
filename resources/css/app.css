@@ -6,6 +6,21 @@
     font-weight: 600;
 }
 
+/* ── Botones: bordes suavizados globalmente ─────────────────────────────── */
+.btn {
+    border-radius: 8px !important;
+}
+.btn-sm {
+    border-radius: 6px !important;
+}
+.btn-xs,
+.btn.btn-xs {
+    border-radius: 5px !important;
+}
+.btn-icon {
+    border-radius: 8px !important;
+}
+
 /* Auth layout limpio */
 .spec-auth-bg {
     background-color: #eef2f7;

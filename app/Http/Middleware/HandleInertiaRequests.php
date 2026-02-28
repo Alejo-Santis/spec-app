@@ -22,10 +22,11 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user() ? [
-                    'id'    => $request->user()->id,
-                    'name'  => $request->user()->name,
-                    'email' => $request->user()->email,
-                    'roles' => $request->user()->getRoleNames(),
+                    'id'          => $request->user()->id,
+                    'name'        => $request->user()->name,
+                    'email'       => $request->user()->email,
+                    'roles'       => $request->user()->getRoleNames(),
+                    'permissions' => $request->user()->getAllPermissions()->pluck('name'),
                 ] : null,
             ],
             'activePriceList' => fn () => PriceList::where('is_active', true)
