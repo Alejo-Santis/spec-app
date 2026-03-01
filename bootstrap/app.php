@@ -16,5 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Archivo demasiado grande (PHP rechaza antes de que llegue a Laravel)
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'El archivo es demasiado grande. Máximo permitido: 10 MB.'], 413);
+            }
+            return redirect()->back()->with('flash', [
+                'type'    => 'error',
+                'message' => 'El archivo es demasiado grande. El máximo permitido es 10 MB.',
+            ]);
+        });
     })->create();

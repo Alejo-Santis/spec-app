@@ -7,20 +7,27 @@ use App\Models\ClientPrice;
 use App\Models\PriceList;
 use App\Models\ServiceType;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithLimit;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 
-class ClientPriceImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class ClientPriceImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithBatchInserts, WithChunkReading, WithLimit
 {
     use SkipsFailures;
 
-    public int $importedCount = 0;
+    const MAX_ROWS = 2000;
 
-    private array $clients      = [];
-    private array $serviceTypes = [];
-    private array $priceLists   = [];
+    public int  $importedCount   = 0;
+    public bool $rowLimitReached = false;
+
+    private int   $processedRows = 0;
+    private array $clients        = [];
+    private array $serviceTypes   = [];
+    private array $priceLists     = [];
 
     public function __construct()
     {
@@ -37,6 +44,13 @@ class ClientPriceImport implements ToModel, WithHeadingRow, WithValidation, Skip
 
     public function model(array $row): ?ClientPrice
     {
+        $this->processedRows++;
+
+        if ($this->processedRows > self::MAX_ROWS) {
+            $this->rowLimitReached = true;
+            return null;
+        }
+
         $clientId      = $this->clients[(string) ($row['documento_cliente'] ?? '')] ?? null;
         $serviceTypeId = $this->serviceTypes[strtolower(trim($row['tipo_de_servicio'] ?? ''))] ?? null;
         $priceListId   = $this->priceLists[strtolower(trim($row['lista_de_precios'] ?? ''))] ?? null;
@@ -101,5 +115,20 @@ class ClientPriceImport implements ToModel, WithHeadingRow, WithValidation, Skip
             'precio_base'       => ['required', 'numeric', 'min:0'],
             'valido_desde'      => ['required', 'date'],
         ];
+    }
+
+    public function batchSize(): int
+    {
+        return 100;
+    }
+
+    public function chunkSize(): int
+    {
+        return 500;
+    }
+
+    public function limit(): int
+    {
+        return self::MAX_ROWS;
     }
 }

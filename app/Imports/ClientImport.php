@@ -7,18 +7,31 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithLimit;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 
-class ClientImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithBatchInserts, WithChunkReading
+class ClientImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithBatchInserts, WithChunkReading, WithLimit
 {
     use SkipsFailures;
 
-    public int $importedCount = 0;
+    const MAX_ROWS = 2000;
+
+    public int  $importedCount  = 0;
+    public bool $rowLimitReached = false;
+
+    private int $processedRows = 0;
 
     public function model(array $row): ?Client
     {
+        $this->processedRows++;
+
+        if ($this->processedRows > self::MAX_ROWS) {
+            $this->rowLimitReached = true;
+            return null;
+        }
+
         // Skip if document already exists
         if (Client::where('document_number', (string) ($row['documento'] ?? ''))->exists()) {
             return null;
@@ -63,5 +76,10 @@ class ClientImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFa
     public function chunkSize(): int
     {
         return 500;
+    }
+
+    public function limit(): int
+    {
+        return self::MAX_ROWS;
     }
 }
