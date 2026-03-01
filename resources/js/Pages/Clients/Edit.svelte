@@ -33,6 +33,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>{client.business_name} · Editar - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

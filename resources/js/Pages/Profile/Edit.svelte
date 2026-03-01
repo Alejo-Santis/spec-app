@@ -51,6 +51,10 @@
   });
 </script>
 
+
+
+
+<svelte:head><title>Mi perfil - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

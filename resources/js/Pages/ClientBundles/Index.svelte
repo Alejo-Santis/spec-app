@@ -47,6 +47,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>Bolsas - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

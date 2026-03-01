@@ -14,6 +14,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>Iniciar sesión - SPEC</title></svelte:head>
 <AuthLayout>
   <div class="card shadow-sm">
     <div class="card-body p-4 p-sm-5">

@@ -39,6 +39,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>{bundle.client?.business_name ?? 'Bolsa'} · Bolsa - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

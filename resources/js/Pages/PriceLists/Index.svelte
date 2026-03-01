@@ -25,6 +25,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>Listas de precios - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

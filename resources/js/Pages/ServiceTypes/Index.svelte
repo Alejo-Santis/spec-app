@@ -63,6 +63,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>Tipos de servicio - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

@@ -39,6 +39,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>Precios de clientes - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

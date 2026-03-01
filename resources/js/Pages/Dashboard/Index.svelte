@@ -41,6 +41,10 @@
   };
 </script>
 
+
+
+
+<svelte:head><title>Dashboard - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

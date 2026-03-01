@@ -37,6 +37,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>Editar precio - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

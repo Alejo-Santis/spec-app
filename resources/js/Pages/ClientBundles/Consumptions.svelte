@@ -35,6 +35,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>{bundle.client?.business_name ?? 'Consumos'} · Consumos - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

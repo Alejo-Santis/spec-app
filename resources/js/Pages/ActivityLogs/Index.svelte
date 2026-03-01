@@ -94,6 +94,10 @@
   const hasFilters = $derived(search || module || action || userId || dateFrom || dateTo);
 </script>
 
+
+
+
+<svelte:head><title>Log de actividades - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

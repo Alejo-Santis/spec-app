@@ -62,6 +62,10 @@
   const roleLabels = { admin: 'Administrador', operator: 'Operador', viewer: 'Solo lectura' };
 </script>
 
+
+
+
+<svelte:head><title>Usuarios - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

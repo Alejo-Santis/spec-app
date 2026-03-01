@@ -31,6 +31,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>Nuevo cliente - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

@@ -46,6 +46,10 @@
   }
 </script>
 
+
+
+
+<svelte:head><title>{client.business_name} - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">

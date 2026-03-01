@@ -24,6 +24,10 @@
   const inactiveBundles = $derived((client.bundles ?? []).filter(b => !b.is_active));
 </script>
 
+
+
+
+<svelte:head><title>{client.business_name} · Precios y bolsas - SPEC</title></svelte:head>
 <AppLayout>
   <div class="page-header">
     <div class="page-block">
