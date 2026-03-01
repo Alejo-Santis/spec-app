@@ -135,7 +135,7 @@
             {#each prices.data as cp}
               <tr>
                 <td>
-                  <Link href="/clients/{cp.client?.id}" class="fw-medium text-decoration-none">
+                  <Link href="/clients/{cp.client?.uuid}" class="fw-medium text-decoration-none">
                     {cp.client?.business_name}
                   </Link>
                 </td>
@@ -174,10 +174,10 @@
                 </td>
                 <td class="text-end">
                   <div class="d-flex gap-1 justify-content-end">
-                    <Link href="/client-prices/{cp.id}/edit" class="btn btn-xs btn-light-primary">
+                    <Link href="/client-prices/{cp.uuid}/edit" class="btn btn-xs btn-light-primary">
                       <i class="ti ti-pencil"></i>
                     </Link>
-                    <ConfirmDelete action="/client-prices/{cp.id}" title="¿Eliminar este precio?" />
+                    <ConfirmDelete action="/client-prices/{cp.uuid}" title="¿Eliminar este precio?" />
                   </div>
                 </td>
               </tr>

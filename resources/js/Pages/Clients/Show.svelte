@@ -62,18 +62,18 @@
         </div>
         <div class="col-auto d-flex gap-2">
           {#if perms.has('clients.view')}
-            <a href="/clients/{client.id}/quotation" target="_blank" class="btn btn-sm btn-light-info">
+            <a href="/clients/{client.uuid}/quotation" target="_blank" class="btn btn-sm btn-light-info">
               <i class="ti ti-file-type-pdf me-1"></i>Cotización PDF
             </a>
           {/if}
           {#if perms.has('clients.update')}
-            <Link href="/clients/{client.id}/edit" class="btn btn-primary btn-sm">
+            <Link href="/clients/{client.uuid}/edit" class="btn btn-primary btn-sm">
               <i class="ti ti-pencil me-1"></i>Editar
             </Link>
           {/if}
           {#if perms.has('clients.delete')}
             <ConfirmDelete
-              action="/clients/{client.id}"
+              action="/clients/{client.uuid}"
               title="¿Eliminar {client.business_name}?"
               text="Se eliminarán también sus precios asociados."
               class="btn btn-sm btn-danger"
@@ -189,7 +189,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="ti ti-currency-dollar me-2"></i>Precios vigentes</h5>
           {#if perms.has('client-prices.create')}
-            <Link href="/client-prices/create?client_id={client.id}" class="btn btn-sm btn-primary">
+            <Link href="/client-prices/create?client_id={client.uuid}" class="btn btn-sm btn-primary">
               <i class="ti ti-plus me-1"></i>Agregar precio
             </Link>
           {/if}
@@ -233,7 +233,7 @@
                     </td>
                     {#if perms.has('client-prices.update')}
                       <td>
-                        <Link href="/client-prices/{price.id}/edit" class="btn btn-xs btn-light-primary">
+                        <Link href="/client-prices/{price.uuid}/edit" class="btn btn-xs btn-light-primary">
                           <i class="ti ti-pencil"></i>
                         </Link>
                       </td>
@@ -259,7 +259,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="ti ti-packages me-2"></i>Bolsas activas</h5>
           {#if perms.has('client-bundles.create')}
-            <Link href="/client-bundles/create?client_id={client.id}" class="btn btn-sm btn-primary">
+            <Link href="/client-bundles/create?client_id={client.uuid}" class="btn btn-sm btn-primary">
               <i class="ti ti-plus me-1"></i>Nueva bolsa
             </Link>
           {/if}
@@ -306,10 +306,10 @@
                     </td>
                     <td>
                       <div class="d-flex gap-1">
-                        <Link href="/client-bundles/{bundle.id}" class="btn btn-xs btn-light-info">
+                        <Link href="/client-bundles/{bundle.uuid}" class="btn btn-xs btn-light-info">
                           <i class="ti ti-eye"></i>
                         </Link>
-                        <Link href="/client-bundles/{bundle.id}/consumptions" class="btn btn-xs btn-light-success">
+                        <Link href="/client-bundles/{bundle.uuid}/consumptions" class="btn btn-xs btn-light-success">
                           <i class="ti ti-bolt"></i>
                         </Link>
                       </div>

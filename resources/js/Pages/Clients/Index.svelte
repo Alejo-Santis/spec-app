@@ -157,17 +157,17 @@
                 </td>
                 <td class="text-end pe-3">
                   <div class="d-flex gap-1 justify-content-end">
-                    <Link href="/clients/{client.id}" class="btn btn-icon btn-sm btn-light-info" title="Ver detalle">
+                    <Link href="/clients/{client.uuid}" class="btn btn-icon btn-sm btn-light-info" title="Ver detalle">
                       <i class="ti ti-eye"></i>
                     </Link>
                     {#if perms.has('clients.update')}
-                      <Link href="/clients/{client.id}/edit" class="btn btn-icon btn-sm btn-light-primary" title="Editar">
+                      <Link href="/clients/{client.uuid}/edit" class="btn btn-icon btn-sm btn-light-primary" title="Editar">
                         <i class="ti ti-pencil"></i>
                       </Link>
                     {/if}
                     {#if perms.has('clients.delete')}
                       <ConfirmDelete
-                        action="/clients/{client.id}"
+                        action="/clients/{client.uuid}"
                         title="¿Eliminar {client.business_name}?"
                         text="Se eliminarán también sus precios asociados."
                       />

@@ -19,7 +19,7 @@
 
   function submitGenerate(e) {
     e.preventDefault();
-    genForm.post(`/price-lists/${priceList.id}/generate-from-previous`, {
+    genForm.post(`/price-lists/${priceList.uuid}/generate-from-previous`, {
       onSuccess: () => bootstrap.Modal.getInstance(generateModalEl)?.hide(),
     });
   }
@@ -43,7 +43,7 @@
 
   function submitTier(e) {
     e.preventDefault();
-    tierForm.post(`/price-lists/${priceList.id}/bundle-tiers`, {
+    tierForm.post(`/price-lists/${priceList.uuid}/bundle-tiers`, {
       onSuccess: () => bootstrap.Modal.getInstance(tierModalEl)?.hide(),
     });
   }
@@ -59,7 +59,7 @@
     }).then((result) => {
       if (result.isConfirmed) {
         const f = useForm({});
-        f.post(`/price-lists/${priceList.id}/activate`);
+        f.post(`/price-lists/${priceList.uuid}/activate`);
       }
     });
   }
@@ -176,10 +176,10 @@
                 </td>
                 <td>
                   <div class="d-flex gap-1">
-                    <Link href="/bundle-tiers/{tier.id}/edit" class="btn btn-xs btn-light-primary">
+                    <Link href="/bundle-tiers/{tier.uuid}/edit" class="btn btn-xs btn-light-primary">
                       <i class="ti ti-pencil"></i>
                     </Link>
-                    <ConfirmDelete action="/bundle-tiers/{tier.id}" title="¿Eliminar {tier.name}?" />
+                    <ConfirmDelete action="/bundle-tiers/{tier.uuid}" title="¿Eliminar {tier.name}?" />
                   </div>
                 </td>
               </tr>
@@ -199,7 +199,7 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="ti ti-currency-dollar me-2"></i>Precios de clientes</h5>
-        <Link href="/client-prices?price_list_id={priceList.id}" class="btn btn-sm btn-light-primary">
+        <Link href="/client-prices?price_list_id={priceList.uuid}" class="btn btn-sm btn-light-primary">
           Ver todos <i class="ti ti-arrow-right ms-1"></i>
         </Link>
       </div>

@@ -7,6 +7,7 @@ use App\Exports\ClientExport;
 use App\Exports\ClientPriceExport;
 use App\Imports\ClientImport;
 use App\Imports\ClientPriceImport;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -14,10 +15,18 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ImportExportController extends Controller
 {
+    public function __construct(private readonly ActivityLogService $activity) {}
+
     // ── Clients ──────────────────────────────────────────
 
     public function exportClients(): BinaryFileResponse
     {
+        $this->activity->log(
+            action: 'exported',
+            module: 'Client',
+            description: 'Exportación de clientes a Excel',
+        );
+
         return Excel::download(new ClientExport(), 'clientes_' . now()->format('Y-m-d') . '.xlsx');
     }
 
@@ -37,6 +46,13 @@ class ImportExportController extends Controller
             $msg .= " {$skipped} fila(s) omitidas por errores o duplicados.";
         }
 
+        $this->activity->log(
+            action: 'imported',
+            module: 'Client',
+            description: "Importación de clientes: {$import->importedCount} importados, {$skipped} omitidos.",
+            properties: ['importados' => $import->importedCount, 'omitidos' => $skipped],
+        );
+
         return redirect()->route('clients.index')->with('flash', compact('type') + ['message' => $msg]);
     }
 
@@ -49,6 +65,12 @@ class ImportExportController extends Controller
 
     public function exportClientPrices(Request $request): BinaryFileResponse
     {
+        $this->activity->log(
+            action: 'exported',
+            module: 'ClientPrice',
+            description: 'Exportación de precios de clientes a Excel',
+        );
+
         return Excel::download(
             new ClientPriceExport($request->integer('price_list_id') ?: null),
             'precios_clientes_' . now()->format('Y-m-d') . '.xlsx'
@@ -71,6 +93,13 @@ class ImportExportController extends Controller
             $msg .= " {$skipped} fila(s) omitidas por errores o duplicados.";
         }
 
+        $this->activity->log(
+            action: 'imported',
+            module: 'ClientPrice',
+            description: "Importación de precios: {$import->importedCount} importados, {$skipped} omitidos.",
+            properties: ['importados' => $import->importedCount, 'omitidos' => $skipped],
+        );
+
         return redirect()->route('client-prices.index')->with('flash', compact('type') + ['message' => $msg]);
     }
 
@@ -86,6 +115,12 @@ class ImportExportController extends Controller
 
     public function exportClientBundles(): BinaryFileResponse
     {
+        $this->activity->log(
+            action: 'exported',
+            module: 'ClientBundle',
+            description: 'Exportación de bolsas a Excel',
+        );
+
         return Excel::download(new ClientBundleExport(), 'bolsas_' . now()->format('Y-m-d') . '.xlsx');
     }
 }

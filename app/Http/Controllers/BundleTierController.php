@@ -73,20 +73,20 @@ class BundleTierController extends Controller
 
         $this->log->log('updated', 'bundle-tiers', "Tier '{$bundleTier->name}' actualizado.", $bundleTier->id, $bundleTier->name);
 
-        return redirect()->route('price-lists.show', $bundleTier->price_list_id)
+        return redirect()->route('price-lists.show', $bundleTier->priceList)
             ->with(...$this->success('Tier de bolsa actualizado correctamente.'));
     }
 
     public function destroy(BundleTier $bundleTier): RedirectResponse
     {
-        $priceListId = $bundleTier->price_list_id;
-        $name        = $bundleTier->name;
+        $priceList = $bundleTier->priceList;
+        $name      = $bundleTier->name;
 
         $this->log->log('deleted', 'bundle-tiers', "Tier '{$name}' eliminado.", $bundleTier->id, $name);
 
         $bundleTier->delete();
 
-        return redirect()->route('price-lists.show', $priceListId)
+        return redirect()->route('price-lists.show', $priceList)
             ->with(...$this->success('Tier de bolsa eliminado correctamente.'));
     }
 }

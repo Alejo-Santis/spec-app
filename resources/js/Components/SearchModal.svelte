@@ -204,9 +204,9 @@
 
       <!-- Footer hint -->
       <div class="d-flex align-items-center gap-3 px-3 py-2 border-top" style="font-size:0.72rem; color:#aaa;">
-        <span><kbd style="background:#f3f4f6;border:1px solid #ddd;border-radius:3px;padding:1px 5px;">↑↓</kbd> Navegar</span>
-        <span><kbd style="background:#f3f4f6;border:1px solid #ddd;border-radius:3px;padding:1px 5px;">↵</kbd> Ir</span>
-        <span><kbd style="background:#f3f4f6;border:1px solid #ddd;border-radius:3px;padding:1px 5px;">Esc</kbd> Cerrar</span>
+        <span><kbd style="background:#f3f4f6;border:1px solid #ddd;border-radius:3px;padding:1px 5px;color:#333;">↑↓</kbd> Navegar</span>
+        <span><kbd style="background:#f3f4f6;border:1px solid #ddd;border-radius:3px;padding:1px 5px;color:#333;">↵</kbd> Ir</span>
+        <span><kbd style="background:#f3f4f6;border:1px solid #ddd;border-radius:3px;padding:1px 5px;color:#333;">Esc</kbd> Cerrar</span>
       </div>
 
     </div>

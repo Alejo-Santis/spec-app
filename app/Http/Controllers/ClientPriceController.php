@@ -24,9 +24,19 @@ class ClientPriceController extends Controller
         $priceLists      = PriceList::orderByDesc('year')->get(['id', 'year', 'name', 'is_active']);
         $activePriceList = $priceLists->firstWhere('is_active', true);
 
+        // Resolver price_list_id: puede venir como UUID (desde la URL) o como entero (paginación interna)
+        $priceListId = null;
+        if ($request->price_list_id) {
+            $priceListId = is_numeric($request->price_list_id)
+                ? $request->price_list_id
+                : PriceList::where('uuid', $request->price_list_id)->value('id');
+        } else {
+            $priceListId = $activePriceList?->id;
+        }
+
         $prices = ClientPrice::with(['client', 'serviceType', 'priceList'])
             ->when(
-                $request->price_list_id ?? $activePriceList?->id,
+                $priceListId,
                 fn ($q, $id) => $q->where('price_list_id', $id)
             )
             ->when($request->client_search, fn ($q, $s) => $q->whereHas('client',
@@ -62,11 +72,19 @@ class ClientPriceController extends Controller
 
     public function create(Request $request): Response
     {
+        // client_id puede venir como UUID (desde enlace de cliente) — resolver a integer para el selector
+        $selectedClientId = null;
+        if ($request->client_id) {
+            $selectedClientId = is_numeric($request->client_id)
+                ? (int) $request->client_id
+                : Client::where('uuid', $request->client_id)->value('id');
+        }
+
         return Inertia::render('ClientPrices/Create', [
             'clients'          => Client::where('is_active', true)->orderBy('business_name')->get(['id', 'business_name', 'document_number']),
             'priceLists'       => PriceList::orderByDesc('year')->get(['id', 'year', 'name', 'is_active', 'adjustment_percentage']),
             'serviceTypes'     => ServiceType::where('is_active', true)->where('billing_type', 'unit')->get(),
-            'selectedClientId' => $request->client_id,
+            'selectedClientId' => $selectedClientId,
         ]);
     }
 
@@ -101,7 +119,7 @@ class ClientPriceController extends Controller
             properties: ['final_price' => $price->final_price, 'client_id' => $client->id],
         );
 
-        return redirect()->route('clients.show', $data['client_id'])
+        return redirect()->route('clients.show', $client)
             ->with(...$this->success('Precio creado correctamente.'));
     }
 
@@ -142,15 +160,15 @@ class ClientPriceController extends Controller
             properties: ['precio_anterior' => $oldPrice, 'precio_nuevo' => $clientPrice->fresh()->final_price],
         );
 
-        return redirect()->route('clients.show', $clientPrice->client_id)
+        return redirect()->route('clients.show', $clientPrice->client)
             ->with(...$this->success('Precio actualizado correctamente.'));
     }
 
     public function destroy(ClientPrice $clientPrice): RedirectResponse
     {
-        $clientId = $clientPrice->client_id;
         $clientPrice->load(['client', 'serviceType']);
-        $label = "{$clientPrice->client->business_name} / {$clientPrice->serviceType->name}";
+        $client = $clientPrice->client;
+        $label  = "{$client->business_name} / {$clientPrice->serviceType->name}";
 
         $clientPrice->delete();
 
@@ -158,11 +176,11 @@ class ClientPriceController extends Controller
             action: 'deleted',
             module: 'ClientPrice',
             description: "Precio eliminado: {$label}",
-            subjectId: $clientId,
+            subjectId: $client->id,
             subjectLabel: $label,
         );
 
-        return redirect()->route('clients.show', $clientId)
+        return redirect()->route('clients.show', $client)
             ->with(...$this->success('Precio eliminado correctamente.'));
     }
 }

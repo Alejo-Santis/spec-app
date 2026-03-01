@@ -53,6 +53,14 @@ class ClientBundleController extends Controller
 
     public function create(Request $request): Response
     {
+        // client_id puede venir como UUID (desde enlace de cliente) — resolver a integer para el selector
+        $selectedClientId = null;
+        if ($request->client_id) {
+            $selectedClientId = is_numeric($request->client_id)
+                ? (int) $request->client_id
+                : Client::where('uuid', $request->client_id)->value('id');
+        }
+
         $clients     = Client::where('is_active', true)->orderBy('business_name')->get(['id', 'business_name']);
         $priceLists  = PriceList::orderByDesc('year')->get(['id', 'year', 'name']);
         $bundleTypes = ServiceType::where('billing_type', 'bundle')->where('is_active', true)->get(['id', 'name']);
@@ -63,7 +71,7 @@ class ClientBundleController extends Controller
             'priceLists'       => $priceLists,
             'bundleTypes'      => $bundleTypes,
             'bundleTiers'      => $bundleTiers,
-            'selectedClientId' => $request->client_id,
+            'selectedClientId' => $selectedClientId,
         ]);
     }
 
@@ -127,6 +135,15 @@ class ClientBundleController extends Controller
         ]);
 
         $clientBundle->update($data);
+        $clientBundle->load(['client', 'bundleTier']);
+
+        $this->activity->log(
+            action: 'updated',
+            module: 'ClientBundle',
+            description: "Bolsa editada para {$clientBundle->client->business_name} ({$clientBundle->bundleTier->name})",
+            subjectId: $clientBundle->id,
+            subjectLabel: "{$clientBundle->client->business_name} / {$clientBundle->bundleTier->name}",
+        );
 
         return redirect()->route('client-bundles.show', $clientBundle)
             ->with(...$this->success('Bolsa actualizada correctamente.'));

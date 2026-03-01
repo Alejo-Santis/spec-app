@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\Client;
+use App\Models\ClientBundle;
+use App\Models\ClientPrice;
+use App\Models\PriceList;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,7 +36,7 @@ class SearchController extends Controller
                 ->where('is_active', true)
                 ->orderBy('business_name')
                 ->limit(6)
-                ->get(['id', 'business_name', 'document_number', 'type', 'city'])
+                ->get(['id', 'uuid', 'business_name', 'document_number', 'type', 'city'])
                 ->each(fn ($c) => $results->push([
                     'type'       => 'client',
                     'group'      => 'Clientes',
@@ -42,8 +45,79 @@ class SearchController extends Controller
                     'sublabel'   => $c->document_number . ($c->city ? ' · ' . $c->city : ''),
                     'badge'      => $c->type === 'juridica' ? 'Jurídica' : 'Natural',
                     'badgeClass' => $c->type === 'juridica' ? 'bg-light-primary text-primary' : 'bg-light-secondary text-secondary',
-                    'url'        => '/clients/' . $c->id,
+                    'url'        => '/clients/' . $c->uuid,
                     'icon'       => $c->type === 'juridica' ? 'ti ti-building' : 'ti ti-user',
+                ]));
+        }
+
+        // Listas de precios
+        if ($user->can('price-lists.view')) {
+            PriceList::query()
+                ->where(fn ($q2) => $q2
+                    ->where('name', 'ilike', "%{$q}%")
+                    ->orWhereRaw("CAST(year AS TEXT) ilike ?", ["%{$q}%"])
+                )
+                ->orderByDesc('year')
+                ->limit(4)
+                ->get(['id', 'uuid', 'name', 'year', 'is_active'])
+                ->each(fn ($pl) => $results->push([
+                    'type'       => 'price-list',
+                    'group'      => 'Listas de precios',
+                    'id'         => $pl->id,
+                    'label'      => $pl->name,
+                    'sublabel'   => 'Año ' . $pl->year,
+                    'badge'      => $pl->is_active ? 'Activa' : 'Inactiva',
+                    'badgeClass' => $pl->is_active ? 'bg-light-success text-success' : 'bg-light-secondary text-secondary',
+                    'url'        => '/price-lists/' . $pl->uuid,
+                    'icon'       => 'ti ti-clipboard-list',
+                ]));
+        }
+
+        // Bolsas de cliente
+        if ($user->can('client-bundles.view')) {
+            ClientBundle::query()
+                ->with(['client:id,business_name,uuid', 'bundleTier:id,name'])
+                ->where(fn ($q2) => $q2
+                    ->whereHas('client', fn ($cq) => $cq->where('business_name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('bundleTier', fn ($tq) => $tq->where('name', 'ilike', "%{$q}%"))
+                )
+                ->orderByDesc('purchased_at')
+                ->limit(5)
+                ->get(['id', 'uuid', 'client_id', 'bundle_tier_id', 'quantity_purchased', 'quantity_consumed', 'is_active'])
+                ->each(fn ($b) => $results->push([
+                    'type'       => 'bundle',
+                    'group'      => 'Bolsas',
+                    'id'         => $b->id,
+                    'label'      => $b->client?->business_name ?? '—',
+                    'sublabel'   => ($b->bundleTier?->name ?? '—') . ' · ' . ($b->quantity_purchased - $b->quantity_consumed) . ' disp.',
+                    'badge'      => $b->is_active ? 'Activa' : 'Inactiva',
+                    'badgeClass' => $b->is_active ? 'bg-light-success text-success' : 'bg-light-secondary text-secondary',
+                    'url'        => '/client-bundles/' . $b->uuid,
+                    'icon'       => 'ti ti-packages',
+                ]));
+        }
+
+        // Precios de cliente
+        if ($user->can('client-prices.view')) {
+            ClientPrice::query()
+                ->with(['client:id,business_name,uuid', 'serviceType:id,name'])
+                ->where(fn ($q2) => $q2
+                    ->whereHas('client', fn ($cq) => $cq->where('business_name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('serviceType', fn ($sq) => $sq->where('name', 'ilike', "%{$q}%"))
+                )
+                ->orderByDesc('valid_from')
+                ->limit(5)
+                ->get(['id', 'uuid', 'client_id', 'service_type_id', 'final_price', 'applies_iva'])
+                ->each(fn ($cp) => $results->push([
+                    'type'       => 'client-price',
+                    'group'      => 'Precios de cliente',
+                    'id'         => $cp->id,
+                    'label'      => $cp->client?->business_name ?? '—',
+                    'sublabel'   => $cp->serviceType?->name . ' · $ ' . number_format($cp->final_price, 0, ',', '.'),
+                    'badge'      => $cp->applies_iva ? 'Con IVA' : 'Sin IVA',
+                    'badgeClass' => $cp->applies_iva ? 'bg-light-warning text-warning' : 'bg-light-secondary text-secondary',
+                    'url'        => '/client-prices/' . $cp->uuid . '/edit',
+                    'icon'       => 'ti ti-receipt',
                 ]));
         }
 

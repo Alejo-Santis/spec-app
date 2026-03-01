@@ -191,7 +191,7 @@
             </div>
             <div class="list-group list-group-flush">
               {#each clientsWithoutList as c}
-                <Link href="/client-prices/create?client_id={c.id}"
+                <Link href="/client-prices/create?client_id={c.uuid}"
                   class="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-2 px-3">
                   <div>
                     <span class="small fw-medium">{c.business_name}</span>
@@ -213,7 +213,7 @@
             </div>
             <div class="list-group list-group-flush">
               {#each bundlesAtRisk as b}
-                <Link href="/client-bundles/{b.id}"
+                <Link href="/client-bundles/{b.uuid}"
                   class="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-2 px-3">
                   <div>
                     <span class="small fw-medium">{b.client_name}</span>
@@ -277,7 +277,7 @@
                         </div>
                         <small class="text-muted">{pct}%</small>
                       </td>
-                      <td><Link href="/client-bundles/{bundle.id}" class="btn btn-xs btn-light-primary"><i class="ti ti-eye"></i></Link></td>
+                      <td><Link href="/client-bundles/{bundle.uuid}" class="btn btn-xs btn-light-primary"><i class="ti ti-eye"></i></Link></td>
                     </tr>
                   {/each}
                 </tbody>

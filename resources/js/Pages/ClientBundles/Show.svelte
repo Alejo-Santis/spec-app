@@ -33,7 +33,7 @@
 
   function submit(e) {
     e.preventDefault();
-    $form.put(`/client-bundles/${bundle.id}`, {
+    $form.put(`/client-bundles/${bundle.uuid}`, {
       onSuccess: () => { editMode = false; },
     });
   }
@@ -51,13 +51,13 @@
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item"><a href="/clients">Clientes</a></li>
             <li class="breadcrumb-item">
-              <a href="/clients/{bundle.client_id}">{bundle.client?.business_name}</a>
+              <a href="/clients/{bundle.client?.uuid}">{bundle.client?.business_name}</a>
             </li>
             <li class="breadcrumb-item active">Bolsa</li>
           </ul>
         </div>
         <div class="col-auto d-flex gap-2">
-          <Link href="/client-bundles/{bundle.id}/consumptions" class="btn btn-success btn-sm">
+          <Link href="/client-bundles/{bundle.uuid}/consumptions" class="btn btn-success btn-sm">
             <i class="ti ti-bolt me-1"></i>Registrar consumo
           </Link>
           <button class="btn btn-outline-primary btn-sm" onclick={() => editMode = !editMode}>
@@ -139,7 +139,7 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="ti ti-history me-2"></i>Últimos consumos</h5>
-          <Link href="/client-bundles/{bundle.id}/consumptions" class="btn btn-sm btn-light-primary">
+          <Link href="/client-bundles/{bundle.uuid}/consumptions" class="btn btn-sm btn-light-primary">
             Ver todos <i class="ti ti-arrow-right ms-1"></i>
           </Link>
         </div>
@@ -173,7 +173,7 @@
                   <tr>
                     <td colspan="5" class="text-center text-muted small py-2">
                       ... y {bundle.consumptions.length - 10} más —
-                      <Link href="/client-bundles/{bundle.id}/consumptions">ver todos</Link>
+                      <Link href="/client-bundles/{bundle.uuid}/consumptions">ver todos</Link>
                     </td>
                   </tr>
                 {/if}
@@ -198,7 +198,7 @@
               <tr>
                 <td class="text-muted small">Cliente</td>
                 <td class="fw-medium">
-                  <Link href="/clients/{bundle.client_id}">{bundle.client?.business_name}</Link>
+                  <Link href="/clients/{bundle.client?.uuid}">{bundle.client?.business_name}</Link>
                 </td>
               </tr>
               <tr>

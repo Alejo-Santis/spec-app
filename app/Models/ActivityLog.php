@@ -31,14 +31,17 @@ class ActivityLog extends Model
     public function getActionLabelAttribute(): string
     {
         return match($this->action) {
-            'created'   => 'Creado',
-            'updated'   => 'Actualizado',
-            'deleted'   => 'Eliminado',
-            'activated' => 'Activado',
-            'consumed'  => 'Consumo registrado',
-            'imported'  => 'Importado',
-            'exported'  => 'Exportado',
-            default     => ucfirst($this->action),
+            'created'      => 'Creado',
+            'updated'      => 'Actualizado',
+            'deleted'      => 'Eliminado',
+            'activated'    => 'Activado',
+            'consumed'     => 'Consumo registrado',
+            'imported'     => 'Importado',
+            'exported'     => 'Exportado',
+            'login'        => 'Inicio de sesión',
+            'logout'       => 'Cierre de sesión',
+            'failed_login' => 'Login fallido',
+            default        => ucfirst($this->action),
         };
     }
 
@@ -46,14 +49,17 @@ class ActivityLog extends Model
     public function getActionColorAttribute(): string
     {
         return match($this->action) {
-            'created'   => 'success',
-            'updated'   => 'info',
-            'deleted'   => 'danger',
-            'activated' => 'primary',
-            'consumed'  => 'warning',
-            'imported'  => 'secondary',
-            'exported'  => 'secondary',
-            default     => 'light',
+            'created'      => 'success',
+            'updated'      => 'info',
+            'deleted'      => 'danger',
+            'activated'    => 'primary',
+            'consumed'     => 'warning',
+            'imported'     => 'secondary',
+            'exported'     => 'secondary',
+            'login'        => 'success',
+            'logout'       => 'secondary',
+            'failed_login' => 'danger',
+            default        => 'light',
         };
     }
 }

@@ -27,7 +27,7 @@
 
   function submit(e) {
     e.preventDefault();
-    $form.post(`/client-bundles/${bundle.id}/consume`, {
+    $form.post(`/client-bundles/${bundle.uuid}/consume`, {
       onSuccess: () => {
         $form.reset();
       },
@@ -47,16 +47,16 @@
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item"><a href="/clients">Clientes</a></li>
             <li class="breadcrumb-item">
-              <a href="/clients/{bundle.client_id}">{bundle.client?.business_name}</a>
+              <a href="/clients/{bundle.client?.uuid}">{bundle.client?.business_name}</a>
             </li>
             <li class="breadcrumb-item">
-              <Link href="/client-bundles/{bundle.id}">Bolsa</Link>
+              <Link href="/client-bundles/{bundle.uuid}">Bolsa</Link>
             </li>
             <li class="breadcrumb-item active">Consumos</li>
           </ul>
         </div>
         <div class="col-auto">
-          <Link href="/client-bundles/{bundle.id}" class="btn btn-light btn-sm">
+          <Link href="/client-bundles/{bundle.uuid}" class="btn btn-light btn-sm">
             <i class="ti ti-arrow-left me-1"></i>Volver a la bolsa
           </Link>
         </div>
@@ -186,7 +186,7 @@
               <tr>
                 <td class="text-muted small ps-3">Cliente</td>
                 <td class="pe-3">
-                  <Link href="/clients/{bundle.client_id}">{bundle.client?.business_name}</Link>
+                  <Link href="/clients/{bundle.client?.uuid}">{bundle.client?.business_name}</Link>
                 </td>
               </tr>
               <tr>

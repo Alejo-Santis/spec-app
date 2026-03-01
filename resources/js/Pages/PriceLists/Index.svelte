@@ -87,11 +87,11 @@
                 </td>
                 <td class="text-end">
                   <div class="d-flex gap-1 justify-content-end">
-                    <Link href="/price-lists/{pl.id}" class="btn btn-sm btn-light-info" title="Ver detalle">
+                    <Link href="/price-lists/{pl.uuid}" class="btn btn-sm btn-light-info" title="Ver detalle">
                       <i class="ti ti-eye"></i>
                     </Link>
                     {#if !pl.is_active && perms.has('price-lists.activate')}
-                      <button class="btn btn-sm btn-light-success" onclick={() => activateList(pl.id)} title="Activar">
+                      <button class="btn btn-sm btn-light-success" onclick={() => activateList(pl.uuid)} title="Activar">
                         <i class="ti ti-check"></i>
                       </button>
                     {/if}

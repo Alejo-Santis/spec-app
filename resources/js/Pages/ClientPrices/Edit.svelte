@@ -33,7 +33,7 @@
 
   function submit(e) {
     e.preventDefault();
-    $form.put(`/client-prices/${clientPrice.id}`);
+    $form.put(`/client-prices/${clientPrice.uuid}`);
   }
 </script>
 
@@ -183,7 +183,7 @@
               {/if}
 
               <div class="col-12 d-flex gap-2 justify-content-end">
-                <a href="/clients/{clientPrice.client_id}" class="btn btn-light">Cancelar</a>
+                <a href="/clients/{clientPrice.client_uuid}" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary" disabled={$form.processing}>
                   {#if $form.processing}
                     <span class="spinner-border spinner-border-sm me-1"></span>

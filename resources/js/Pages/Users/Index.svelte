@@ -35,7 +35,7 @@
 
   function saveRole(user) {
     $roleForm.role = editingRole[user.id];
-    $roleForm.put(`/users/${user.id}/role`, {
+    $roleForm.put(`/users/${user.uuid}/role`, {
       onSuccess: () => {
         delete editingRole[user.id];
         editingRole = { ...editingRole };
@@ -49,13 +49,13 @@
       ? `¿Desactivar a ${user.name}? No podrá iniciar sesión.`
       : `¿Reactivar a ${user.name}?`;
     if (!confirm(msg)) return;
-    router.patch(`/users/${user.id}/toggle-active`, {}, { preserveScroll: true });
+    router.patch(`/users/${user.uuid}/toggle-active`, {}, { preserveScroll: true });
   }
 
   // ── Eliminar ─────────────────────────────────────
   function deleteUser(user) {
     if (!confirm(`¿Eliminar permanentemente a ${user.name}? Esta acción no se puede deshacer.`)) return;
-    router.delete(`/users/${user.id}`, { preserveScroll: true });
+    router.delete(`/users/${user.uuid}`, { preserveScroll: true });
   }
 
   const roleColors = { admin: 'danger', operator: 'primary', viewer: 'secondary' };

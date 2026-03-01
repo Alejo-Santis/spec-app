@@ -29,7 +29,7 @@
 
   function submit(e) {
     e.preventDefault();
-    $form.put(`/clients/${client.id}`);
+    $form.put(`/clients/${client.uuid}`);
   }
 </script>
 
@@ -44,7 +44,7 @@
           <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item"><a href="/clients">Clientes</a></li>
-            <li class="breadcrumb-item"><a href="/clients/{client.id}">{client.business_name}</a></li>
+            <li class="breadcrumb-item"><a href="/clients/{client.uuid}">{client.business_name}</a></li>
             <li class="breadcrumb-item active">Editar</li>
           </ul>
         </div>

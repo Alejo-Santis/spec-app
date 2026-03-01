@@ -54,7 +54,7 @@
         },
       });
     } else {
-      $form.put(`/service-types/${editTarget.id}`, {
+      $form.put(`/service-types/${editTarget.uuid}`, {
         onSuccess: () => {
           bootstrap.Modal.getInstance(modalEl)?.hide();
         },
@@ -132,7 +132,7 @@
                       <i class="ti ti-pencil"></i>
                     </button>
                     <ConfirmDelete
-                      action="/service-types/{st.id}"
+                      action="/service-types/{st.uuid}"
                       title="¿Desactivar {st.name}?"
                       text="El tipo de servicio quedará inactivo."
                       label="Desactivar"

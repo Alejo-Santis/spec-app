@@ -33,12 +33,12 @@
           <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item"><a href="/clients">Clientes</a></li>
-            <li class="breadcrumb-item"><a href="/clients/{client.id}">{client.business_name}</a></li>
+            <li class="breadcrumb-item"><a href="/clients/{client.uuid}">{client.business_name}</a></li>
             <li class="breadcrumb-item active">Bolsas</li>
           </ul>
         </div>
         <div class="col-auto">
-          <Link href="/client-bundles/create?client_id={client.id}" class="btn btn-primary btn-sm">
+          <Link href="/client-bundles/create?client_id={client.uuid}" class="btn btn-primary btn-sm">
             <i class="ti ti-plus me-1"></i>Nueva bolsa
           </Link>
         </div>
@@ -105,10 +105,10 @@
                     {/if}
                   </td>
                   <td>
-                    <Link href="/client-bundles/{b.id}" class="btn btn-icon btn-sm btn-light-primary" title="Ver detalle">
+                    <Link href="/client-bundles/{b.uuid}" class="btn btn-icon btn-sm btn-light-primary" title="Ver detalle">
                       <i class="ti ti-eye"></i>
                     </Link>
-                    <Link href="/client-bundles/{b.id}/consumptions" class="btn btn-icon btn-sm btn-light-success" title="Registrar consumo">
+                    <Link href="/client-bundles/{b.uuid}/consumptions" class="btn btn-icon btn-sm btn-light-success" title="Registrar consumo">
                       <i class="ti ti-bolt"></i>
                     </Link>
                   </td>
@@ -152,7 +152,7 @@
                   <td class="text-end"><small>{formatCop(b.price_paid)}</small></td>
                   <td><small>{formatDate(b.purchased_at)}</small></td>
                   <td>
-                    <Link href="/client-bundles/{b.id}" class="btn btn-icon btn-sm btn-light" title="Ver detalle">
+                    <Link href="/client-bundles/{b.uuid}" class="btn btn-icon btn-sm btn-light" title="Ver detalle">
                       <i class="ti ti-eye"></i>
                     </Link>
                   </td>

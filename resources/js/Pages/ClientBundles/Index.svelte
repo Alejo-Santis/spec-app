@@ -196,7 +196,7 @@
                     {/if}
                   </td>
                   <td>
-                    <Link href="/client-bundles/{b.id}" class="btn btn-icon btn-sm btn-light-primary" title="Ver detalle">
+                    <Link href="/client-bundles/{b.uuid}" class="btn btn-icon btn-sm btn-light-primary" title="Ver detalle">
                       <i class="ti ti-eye"></i>
                     </Link>
                   </td>
