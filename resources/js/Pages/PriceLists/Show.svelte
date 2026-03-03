@@ -1,5 +1,5 @@
 <script>
-  import { useForm, Link } from '@inertiajs/svelte';
+  import { useForm, router, Link } from '@inertiajs/svelte';
   import AppLayout from '../../Layouts/AppLayout.svelte';
   import ConfirmDelete from '../../Components/ConfirmDelete.svelte';
 
@@ -19,7 +19,7 @@
 
   function submitGenerate(e) {
     e.preventDefault();
-    genForm.post(`/price-lists/${priceList.uuid}/generate-from-previous`, {
+    $genForm.post(`/price-lists/${priceList.uuid}/generate-from-previous`, {
       onSuccess: () => bootstrap.Modal.getInstance(generateModalEl)?.hide(),
     });
   }
@@ -36,14 +36,14 @@
 
 
   function openTierModal() {
-    tierForm.reset();
-    tierForm.clearErrors();
+    $tierForm.reset();
+    $tierForm.clearErrors();
     bootstrap.Modal.getOrCreateInstance(tierModalEl).show();
   }
 
   function submitTier(e) {
     e.preventDefault();
-    tierForm.post(`/price-lists/${priceList.uuid}/bundle-tiers`, {
+    $tierForm.post(`/price-lists/${priceList.uuid}/bundle-tiers`, {
       onSuccess: () => bootstrap.Modal.getInstance(tierModalEl)?.hide(),
     });
   }
@@ -58,8 +58,7 @@
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        const f = useForm({});
-        f.post(`/price-lists/${priceList.uuid}/activate`);
+        router.post(`/price-lists/${priceList.uuid}/activate`);
       }
     });
   }

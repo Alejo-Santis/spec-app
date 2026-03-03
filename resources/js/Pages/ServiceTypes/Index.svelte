@@ -111,6 +111,8 @@
                 <td>
                   {#if st.billing_type === 'bundle'}
                     <span class="badge bg-light-primary text-primary">Bolsa</span>
+                  {:else if st.billing_type === 'metered'}
+                    <span class="badge bg-light-info text-info">Ilimitado</span>
                   {:else}
                     <span class="badge bg-light-secondary text-secondary">Unitario</span>
                   {/if}
@@ -189,6 +191,11 @@
                 <input class="form-check-input" type="radio" id="bt_bundle" value="bundle"
                   bind:group={$form.billing_type}>
                 <label class="form-check-label" for="bt_bundle">Bolsa / Paquete</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" id="bt_metered" value="metered"
+                  bind:group={$form.billing_type}>
+                <label class="form-check-label" for="bt_metered">Ilimitado (por uso)</label>
               </div>
             </div>
           </div>

@@ -90,8 +90,22 @@ class ClientController extends Controller
             'prices.priceList',
         ]);
 
+        $monthlyUsages = $client->monthlyUsages()
+            ->with(['clientPrice.serviceType', 'creator'])
+            ->orderByDesc('period_year')
+            ->orderByDesc('period_month')
+            ->get();
+
+        // Precios con tipo 'metered' para el cliente (usados en el modal de nuevo uso)
+        $meteredPrices = $client->prices()
+            ->whereHas('serviceType', fn ($q) => $q->where('billing_type', 'metered'))
+            ->with(['serviceType', 'priceList'])
+            ->get();
+
         return Inertia::render('Clients/Show', [
-            'client' => $client->append('formatted_document'),
+            'client'        => $client->append('formatted_document'),
+            'monthlyUsages' => $monthlyUsages,
+            'meteredPrices' => $meteredPrices,
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasUuid;
+use App\Models\MonthlyUsage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -56,6 +57,11 @@ class Client extends Model
     public function currentPrices(): HasMany
     {
         return $this->prices()->whereHas('priceList', fn ($q) => $q->where('is_active', true));
+    }
+
+    public function monthlyUsages(): HasMany
+    {
+        return $this->hasMany(MonthlyUsage::class);
     }
 
     public function getFormattedDocumentAttribute(): string

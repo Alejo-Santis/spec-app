@@ -1,11 +1,11 @@
 <script>
-  import { Link, page } from '@inertiajs/svelte';
+  import { Link, page, useForm, router } from '@inertiajs/svelte';
   import AppLayout from '../../Layouts/AppLayout.svelte';
   import ConfirmDelete from '../../Components/ConfirmDelete.svelte';
 
   const perms = $derived(new Set($page.props.auth?.user?.permissions ?? []));
 
-  let { client } = $props();
+  let { client, monthlyUsages = [], meteredPrices = [] } = $props();
 
   function formatCop(v) {
     return '$ ' + Number(v).toLocaleString('es-CO');
@@ -44,6 +44,36 @@
     if (!d) return '—';
     return new Date(d).toLocaleDateString('es-CO');
   }
+
+  // Modal: registrar uso mensual
+  const usageForm = useForm({
+    client_id:       '',
+    client_price_id: '',
+    period_year:     new Date().getFullYear(),
+    period_month:    new Date().getMonth() + 1,
+    document_count:  '',
+    notes:           '',
+  });
+  let usageModalEl;
+
+  function openUsageModal() {
+    $usageForm.reset();
+    $usageForm.clearErrors();
+    $usageForm.client_id = client.id;
+    bootstrap.Modal.getOrCreateInstance(usageModalEl).show();
+  }
+
+  function submitUsage(e) {
+    e.preventDefault();
+    $usageForm.post('/monthly-usages', {
+      onSuccess: () => bootstrap.Modal.getInstance(usageModalEl)?.hide(),
+    });
+  }
+
+  const monthNames = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  const usageTotals = $derived(monthlyUsages.reduce((s, u) => s + parseFloat(u.total_amount ?? 0), 0));
 </script>
 
 
@@ -330,6 +360,73 @@
         </div>
       </div>
 
+      <!-- Usos mensuales (facturación ilimitada) -->
+      {#if meteredPrices.length > 0 || monthlyUsages.length > 0}
+        <div class="card mt-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="ti ti-calendar-stats me-2"></i>Usos Mensuales (Facturación Ilimitada)</h5>
+            {#if perms.has('monthly-usages.manage') && meteredPrices.length > 0}
+              <button class="btn btn-sm btn-primary" onclick={openUsageModal}>
+                <i class="ti ti-plus me-1"></i>Registrar uso
+              </button>
+            {/if}
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Período</th>
+                    <th>Servicio</th>
+                    <th class="text-end">Documentos</th>
+                    <th class="text-end">Precio u.</th>
+                    <th class="text-end">Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {#each monthlyUsages as usage}
+                    <tr>
+                      <td>
+                        <span class="badge bg-light-secondary text-secondary">
+                          {monthNames[usage.period_month]} {usage.period_year}
+                        </span>
+                      </td>
+                      <td><small class="text-muted">{usage.client_price?.service_type?.name ?? '—'}</small></td>
+                      <td class="text-end fw-bold">{Number(usage.document_count).toLocaleString('es-CO')}</td>
+                      <td class="text-end text-muted small">{formatCop(usage.unit_price)}</td>
+                      <td class="text-end fw-bold price-cop">{formatCop(usage.total_amount)}</td>
+                      <td>
+                        {#if perms.has('monthly-usages.manage')}
+                          <ConfirmDelete
+                            action="/monthly-usages/{usage.uuid}"
+                            title="¿Eliminar este registro?"
+                            text="Se eliminará el uso de {monthNames[usage.period_month]} {usage.period_year}."
+                          />
+                        {/if}
+                      </td>
+                    </tr>
+                  {:else}
+                    <tr>
+                      <td colspan="6" class="text-center text-muted py-3">Sin registros de uso mensual.</td>
+                    </tr>
+                  {/each}
+                </tbody>
+                {#if monthlyUsages.length > 0}
+                  <tfoot class="table-light">
+                    <tr>
+                      <td colspan="4" class="text-end fw-bold text-muted small">Total:</td>
+                      <td class="text-end fw-bold price-cop">{formatCop(usageTotals)}</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                {/if}
+              </table>
+            </div>
+          </div>
+        </div>
+      {/if}
+
       <!-- Historial de ajustes de precios -->
       {#if priceHistory().length > 0}
         <div class="card mt-3">
@@ -378,3 +475,76 @@
     </div>
   </div>
 </AppLayout>
+
+<!-- Modal: Registrar uso mensual -->
+<div class="modal fade" tabindex="-1" bind:this={usageModalEl}>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form onsubmit={submitUsage}>
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="ti ti-calendar-stats me-2"></i>Registrar uso mensual</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" bind:value={$usageForm.client_id}>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Servicio (precio metered) <span class="text-danger">*</span></label>
+              <select class="form-select {$usageForm.errors.client_price_id ? 'is-invalid' : ''}"
+                bind:value={$usageForm.client_price_id} required>
+                <option value="">Seleccionar servicio...</option>
+                {#each meteredPrices as mp}
+                  <option value={mp.id}>{mp.service_type?.name} — {mp.price_list?.name}</option>
+                {/each}
+              </select>
+              {#if $usageForm.errors.client_price_id}
+                <div class="invalid-feedback">{$usageForm.errors.client_price_id}</div>
+              {/if}
+            </div>
+            <div class="col-6">
+              <label class="form-label">Año <span class="text-danger">*</span></label>
+              <input type="number" class="form-control {$usageForm.errors.period_year ? 'is-invalid' : ''}"
+                bind:value={$usageForm.period_year} min="2020" max="2099" required>
+              {#if $usageForm.errors.period_year}
+                <div class="invalid-feedback">{$usageForm.errors.period_year}</div>
+              {/if}
+            </div>
+            <div class="col-6">
+              <label class="form-label">Mes <span class="text-danger">*</span></label>
+              <select class="form-select {$usageForm.errors.period_month ? 'is-invalid' : ''}"
+                bind:value={$usageForm.period_month} required>
+                {#each monthNames.slice(1) as m, i}
+                  <option value={i + 1}>{m}</option>
+                {/each}
+              </select>
+              {#if $usageForm.errors.period_month}
+                <div class="invalid-feedback">{$usageForm.errors.period_month}</div>
+              {/if}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Cantidad de documentos <span class="text-danger">*</span></label>
+              <input type="number" class="form-control {$usageForm.errors.document_count ? 'is-invalid' : ''}"
+                bind:value={$usageForm.document_count} min="1" required>
+              {#if $usageForm.errors.document_count}
+                <div class="invalid-feedback">{$usageForm.errors.document_count}</div>
+              {/if}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Notas</label>
+              <textarea class="form-control" rows="2" bind:value={$usageForm.notes}></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" disabled={$usageForm.processing}>
+            {#if $usageForm.processing}
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            {/if}
+            Registrar uso
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

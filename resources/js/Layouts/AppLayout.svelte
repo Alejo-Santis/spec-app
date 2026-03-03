@@ -48,6 +48,7 @@
       caption: 'Bolsas',
       items: [
         { label: 'Bolsas / Paquetes', href: '/client-bundles', icon: 'ti ti-package', exact: false, perm: 'client-bundles.view' },
+        { label: 'Usos Mensuales',    href: '/monthly-usages', icon: 'ti ti-calendar-stats', exact: false, perm: 'monthly-usages.view' },
       ],
     },
     {

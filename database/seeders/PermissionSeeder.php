@@ -51,6 +51,10 @@ class PermissionSeeder extends Seeder
 
             // Importar / Exportar
             'import-export.use',
+
+            // Usos mensuales
+            'monthly-usages.view',
+            'monthly-usages.manage',
         ];
 
         foreach ($permissions as $perm) {
@@ -74,6 +78,7 @@ class PermissionSeeder extends Seeder
             'client-bundles.view', 'client-bundles.create', 'client-bundles.update', 'client-bundles.consume',
             'activity-logs.view',
             'import-export.use',
+            'monthly-usages.view', 'monthly-usages.manage',
         ]);
 
         // Viewer: solo lectura
@@ -84,6 +89,7 @@ class PermissionSeeder extends Seeder
             'client-prices.view',
             'client-bundles.view',
             'activity-logs.view',
+            'monthly-usages.view',
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientPriceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImportExportController;
+use App\Http\Controllers\MonthlyUsageController;
 use App\Http\Controllers\PriceListController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\SearchController;
@@ -157,6 +158,14 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('can:users.manage')->name('users.toggle-active');
     Route::delete('users/{user}', [UserController::class, 'destroy'])
         ->middleware('can:users.manage')->name('users.destroy');
+
+    // Usos mensuales (facturación metered)
+    Route::get('monthly-usages', [MonthlyUsageController::class, 'index'])
+        ->middleware('can:monthly-usages.view')->name('monthly-usages.index');
+    Route::post('monthly-usages', [MonthlyUsageController::class, 'store'])
+        ->middleware('can:monthly-usages.manage')->name('monthly-usages.store');
+    Route::delete('monthly-usages/{monthlyUsage}', [MonthlyUsageController::class, 'destroy'])
+        ->middleware('can:monthly-usages.manage')->name('monthly-usages.destroy');
 
     // Perfil propio (cualquier usuario autenticado)
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');

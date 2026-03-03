@@ -31,7 +31,7 @@ class ServiceTypeController extends Controller
     {
         $data = $request->validate([
             'name'           => ['required', 'string', 'max:255', 'unique:service_types,name'],
-            'billing_type'   => ['required', 'in:unit,bundle'],
+            'billing_type'   => ['required', 'in:unit,bundle,metered'],
             'applies_iva'    => ['boolean'],
             'iva_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
             'description'    => ['nullable', 'string'],
@@ -57,7 +57,7 @@ class ServiceTypeController extends Controller
     {
         $data = $request->validate([
             'name'           => ['required', 'string', 'max:255', 'unique:service_types,name,' . $serviceType->id],
-            'billing_type'   => ['required', 'in:unit,bundle'],
+            'billing_type'   => ['required', 'in:unit,bundle,metered'],
             'applies_iva'    => ['boolean'],
             'iva_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
             'description'    => ['nullable', 'string'],
